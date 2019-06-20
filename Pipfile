@@ -9,6 +9,7 @@ verify_ssl = true
 requests = "*"
 beautifulsoup4 = "*"
 flask = "==1.0.2"
+pymongo = "*"
 
 [requires]
 python_version = "3.7"

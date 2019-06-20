@@ -1,0 +1,21 @@
+{% block cards %}
+    <style>
+        .card {
+        color: #000000;
+    }
+    </style>
+    {% for card in cards %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-8">
+                <h3 class="display-4">{{ card.capitalize() }}</h3>
+            </div>
+            <div class="col-2">
+                pic
+            </div>
+        </div>
+    </div>
+</div>
+    {% endfor %}
+{% endblock %}

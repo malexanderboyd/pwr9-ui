@@ -1,58 +1,75 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <title>pwr9 - {{ deck.name }}</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #FFFFFF;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
+{% include "main.html" %}
+{% block body %}
+    <div class="container">
     <div class="row">
         <h2>{{ deck.name }}</h2>
     </div>
     <div class="row justify-content-center">
         <div class="col-sm">
-        <p>by {{ deck.player }}</p>
+            <p>by {{ deck.player }}</p>
         </div>
         <div class="col-sm">
-        <p class="lead">{{ deck.placed }}</p>
+            <p class="lead">{{ deck.placed }}</p>
         </div>
     </div>
     <div class="row justify-content-center my-3">
-            <div class="col-1">
-            <button type="button" class="btn btn-sm btn-outline-dark" style="color:whitesmoke">Copy</button>
-            </div>
-            <div class="col-2">
-            <button type="button" class="btn btn-sm btn-outline-dark" style="color:whitesmoke">Download .txt</button>
-            </div>
+        <div class="col-3" id="copySuccessAlertContainer"></div>
+    </div>
+    <div class="row justify-content-center my-3">
+        <div class="col-1">
+            <button type="button" onclick="copyDeck()" data-toggle="tooltip" data-placement="top"
+                    title="Copy to clipboard" id="copyDeckButton" class="btn btn-sm btn-outline-dark"
+                    style="color:whitesmoke">
+                Copy
+            </button>
+        </div>
+        <div class="col-2">
+            <button type="button" onclick="downloadDeck()" class="btn btn-sm btn-outline-dark" style="color:whitesmoke">
+                Download .txt
+            </button>
+        </div>
     </div>
     <div class="row justify-content-center">
         <div class="col-3">
-             <code style="white-space: pre"><p class="small">{{ deck.contents }}</p></code>
+            <code style="white-space: pre"><p class="small" id="deckContents">{{ deck.contents }}</p></code>
         </div>
     </div>
 </div>
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-</body>
-</html>
+
+<script>
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    const copyDeck = () => {
+        const range = document.createRange();
+        range.selectNode(document.getElementById("deckContents"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();// to deselect
+        $('#copyDeckButton').attr("title", "Copied!").tooltip("_fixTitle").tooltip("show").attr("title", "Copy to clipboard").tooltip("_fixTitle");
+    };
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename + '.txt');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    const downloadDeck = () => {
+        download('{{ deck.name }}', $('#deckContents').html());
+    };
+
+</script>
+
+{% endblock %}

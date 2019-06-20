@@ -6,8 +6,8 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def home():
+    return render_template('home.html', cards=list(deck_db.types.keys())[:3])
 
 
 @app.route('/standard')
@@ -24,10 +24,11 @@ def modern():
 def legacy():
     return render_template('deck.html', deck=deck_db.get_random_deck_by_type(GameTypes.LEGACY))
 
-
 @app.route('/regional')
 def regional():
     return render_template('deck.html', deck=deck_db.get_random_deck_by_type(GameTypes.REGIONAL))
+
+
 
 
 if __name__ == '__main__':

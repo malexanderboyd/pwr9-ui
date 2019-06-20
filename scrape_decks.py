@@ -2,10 +2,14 @@ import json
 import re
 import os
 from collections import defaultdict
-from html.parser import HTMLParser
 
 import requests
 from bs4 import BeautifulSoup, Tag
+
+
+RECENT_LEGACY_DECKS_URL = 'http://www.starcitygames.com/decks/results/format/3/start_date/31-03-2019/end_date/23-06-2019/w_perc/0/g_perc/0/r_perc/0/b_perc/0/u_perc/0/a_perc/0/order_1/finish/limit/100/start_num/0/'
+RECENT_STANDARD_DECKS_URL = 'http://www.starcitygames.com/decks/results/format/1/start_date/31-03-2019/end_date/23-06-2019/w_perc/0/g_perc/0/r_perc/0/b_perc/0/u_perc/0/a_perc/0/order_1/finish/limit/100/start_num/0/'
+RECENT_MODERN_DECKS_URL = 'http://www.starcitygames.com/decks/results/format/28/start_date/31-03-2019/end_date/23-06-2019/w_perc/0/g_perc/0/r_perc/0/b_perc/0/u_perc/0/a_perc/0/order_1/finish/limit/100/start_num/0/'
 
 SCRAPE_BASE = os.getenv('pwr_scrape_base')
 if not SCRAPE_BASE:
@@ -16,8 +20,6 @@ SCRAPE_DEST = f'{SCRAPE_BASE}/content/decklists'
 res = requests.get(SCRAPE_DEST)
 
 res.raise_for_status()
-
-html_parser = HTMLParser()
 
 soup = BeautifulSoup(res.text, features="html.parser")
 
@@ -47,6 +49,14 @@ for deck_list in deck_lists:
 all_decks = {}
 for game_type, lists in deck_list_links.items():
     tournaments = {}
+    db_links = {
+        'standard': RECENT_STANDARD_DECKS_URL,
+        'legacy': RECENT_LEGACY_DECKS_URL,
+        'modern': RECENT_MODERN_DECKS_URL
+    }
+    additonal_link = db_links.get(game_type.lower())
+    if additonal_link:
+        lists.append(('Additional', additonal_link))
     for tournament_name, link in lists:
         decks_html = requests.get(link)
         deck_content = BeautifulSoup(decks_html.text, features="html.parser")
@@ -71,7 +81,7 @@ for game_type, lists in deck_list_links.items():
 
         for deck_link in deck_links:
             deck_id = deck_link_regex.search(deck_link).group(1)
-            download_url = f'{SCRAPE_BASE}/decks/download_deck?DeckID={deck_id}&Mode=modo'
+            download_url = f'{SCRAPE_BASE}/decks/download_deck'
 
             deck_info_url = f'{SCRAPE_BASE}/decks/{deck_id}'
 
@@ -83,7 +93,7 @@ for game_type, lists in deck_list_links.items():
             deck_placed = deck_info_soup.find_all('header', class_='deck_played_placed')[0].text
             deck_player = deck_info_soup.find_all('header', class_='player_name')[0].text
 
-            deck_contents = requests.get(download_url)
+            deck_contents = requests.get(download_url, params={'DeckID': deck_id, 'Mode': 'modo'})
 
             decks[deck_name] = (deck_name, deck_placed, deck_player, deck_contents.text)
         tournaments[tournament_name] = decks
