@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List
 
-from util import db
+from util import db, logger
 
 USE_BACKUP = os.getenv('pwr_use_backup', False)
 
@@ -122,7 +122,11 @@ def get_deck_db(from_backup=False):
     if from_backup:
         backup_db = _get_from_backup_db()
         for game_type, content in backup_db.to_json().items():
-            db.game_types.update_one({'type': game_type}, {'$set': {'data': {game_type: content}}})
+            try:
+                db.game_types.update_one({'type': game_type}, {'$set': {'data': {game_type: content}}})
+            except Exception as e:
+                logger.exception(e)
+                pass
         return backup_db
 
     raw_db = db.game_types.find()
@@ -134,4 +138,4 @@ def get_deck_db(from_backup=False):
     return DeckDb(game_types)
 
 
-deck_db = get_deck_db(from_backup=False)  # USE_BACKUP)
+deck_db = get_deck_db(from_backup=True)

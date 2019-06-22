@@ -1,20 +1,16 @@
 {% include "main.html" %}
 {% include "game_type_card.html" %}
 {% block body %}
-    <style>
-
-
-    </style>
     <div class="container h-100 d-flex justify-content-center">
         <div class="mx-auto">
-                {% block cards %}{% endblock %}
-                <p class="lead m-1 p-2">
-                    Get a random magic the gathering deck from recent tournaments in one tap; making pickup games quick
-                    and easy.
-                </p>
-                <p class="lead m-1 p-2">
-                    Inspired by <a href="https://github.com/Cockatrice/Cockatrice">Cockatrice</a>.
-                </p>
-            </div>
+            <p class="lead m-1 p-2">
+                Get a random magic the gathering deck from recent tournaments in one tap; making pickup games quick
+                and easy.
+            </p>
+            {% block game_types %}{% endblock %}
+            <p class="lead m-1 p-2">
+                Inspired by <a href="https://github.com/Cockatrice/Cockatrice">Cockatrice</a>.
+            </p>
         </div>
+    </div>
 {% endblock %}

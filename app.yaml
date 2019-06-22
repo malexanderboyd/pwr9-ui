@@ -1,0 +1,5 @@
+runtime: python37
+env_variables:
+  PWR9_MONGO_HOST: deckdb-pa8b2.gcp.mongodb.net
+  PWR9_MONGO_USER: pwr9
+  PWR9_MONGO_PW: KwaHmJjz4cOKHZ3c
