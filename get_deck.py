@@ -138,4 +138,8 @@ def get_deck_db(from_backup=False):
     return DeckDb(game_types)
 
 
-deck_db = get_deck_db(from_backup=True)
+try:
+    deck_db = get_deck_db(from_backup=True)
+except Exception as e:
+    logger.exception(e)
+    raise e
