@@ -1,0 +1,35 @@
+
+.draftContainer {
+    background-color: #282c34;
+    border-radius: 3px;
+    border: solid #ccc 1px;
+    line-height: 20px;
+    padding: 10px;
+    height: 100vh;
+    color: white;
+}
+
+.draftHeader {
+    margin:10px;
+}
+
+
+.fieldset {
+    background-color: #eaeaea;
+    border-radius: 3px;
+    border: solid #ccc 3px;
+    line-height: 20px;
+    padding: 10px;
+    color: black;
+    margin: 10px;
+}
+
+.legend {
+    background-color: #FFFFFF;
+    border: solid #fff 1px;
+    box-shadow: 0 1px 1px 0 #ccc;
+    color: #089dff;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 3px 5px;
+}
