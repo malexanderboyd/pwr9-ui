@@ -5,15 +5,18 @@ import {Header, Grid, Dropdown, Checkbox, Statistic, Segment, Label, GridRow} fr
 import {openNewGameSocket, subscribeToUpdates} from "../api"
 import useSWR from "swr"
 import {ChatWindow} from "./ChatWindow"
+import DeckList from "./DeckList"
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 const JSONErrorDiv = (error) => {
     return <div>Failed loading data: {JSON.stringify(error)}</div>
 }
 
-const HostOptions = () => {
+const HostOptions = (props) => {
 
+    let {socket} = props;
     let [TimerEnabled, setTimerEnabled] = useState(false);
+    let [TimerSettings, setTimerSettings] = useState({});
 
     return (
         <div>
@@ -28,6 +31,12 @@ const HostOptions = () => {
                     setTimerEnabled(!TimerEnabled)
                 }} label={<label>Timer</label>}/>
                 {TimerEnabled === true ? <Dropdown placeholder={"Select Type"}
+                                                   onChange={(e) => {
+                                                       if (TimerEnabled) {
+                                                           setTimerSettings(e.target.value)
+                                                       }
+                                                   }
+                                                   }
                                                    fluid
                                                    selection
                                                    options={[{
@@ -53,7 +62,18 @@ const HostOptions = () => {
                                                    ]}/> : <div/>}
             </GridRow>
             <GridRow>
-                <button className="ui icon right labeled button">
+                <button
+                    onClick={() => {
+                        socket.send(
+                            JSON.stringify({
+                                type: "start_game",
+                                data: JSON.stringify({
+                                    timer: TimerSettings,
+                                })
+                            })
+                        )
+                    }}
+                    className="ui icon right labeled button">
                     <i aria-hidden="true" className="right arrow icon"/>
                     Start Game
                 </button>
@@ -65,6 +85,8 @@ const HostOptions = () => {
 function DraftGame() {
     let [TotalPlayers, setTotalPlayers] = useState(0);
     let [IsGameHost, setIsGameHost] = useState(false);
+    let [GameStarted, setGameStarted] = useState(false)
+    let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
     let {id} = useParams();
     const {data: gameInfo, error: gameError} = useSWR(`http://localhost:8000/game/${id}`, fetchToJson, {revalidateOnFocus: false});
@@ -95,13 +117,21 @@ function DraftGame() {
             case "host_change":
                 setIsGameHost(true)
                 break;
+            case "start_game":
+                setGameStarted(true)
+                break;
+            case "deck_content":
+                let newDeckContents = [...DeckContents, JSON.parse(event.data)]
+                setDeckContents(newDeckContents)
+                break;
             default:
                 console.log(`unknown msg type: ${event.type}`)
+                break;
         }
     });
 
     return (
-        <Grid divided='vertically'>
+        <Grid>
             <Grid.Row columns={2} stretched centered>
                 <Grid.Column width={10}>
                     <Segment raised>
@@ -121,11 +151,21 @@ function DraftGame() {
                         <Header as='h2'>Pwr9 Draft</Header>
                         <Header size="tiny">Draft Game Coming Soon! (ID: {id})</Header>
                         <Header size="tiny">Players: {TotalPlayers}</Header>
-                        {IsGameHost ? <HostOptions/> : <div/>}
+                        {IsGameHost && !GameStarted ? <HostOptions socket={socket}/> : <div/>}
                     </Segment>
                 </Grid.Column>
                 <Grid.Column width={3}>
                     <ChatWindow socket={socket} content={ChatContents}/>
+                </Grid.Column>
+            </Grid.Row>
+            <Grid.Row columns={1} stretched centered>
+                <Grid.Column>
+                    <Segment raised>
+                        <Label color={"purple"} ribbon={"left"}>
+                            Deck
+                        </Label>
+                        <DeckList socket={socket} content={DeckContents}/>
+                    </Segment>
                 </Grid.Column>
             </Grid.Row>
         </Grid>

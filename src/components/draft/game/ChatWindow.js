@@ -1,17 +1,6 @@
 import React, {useState} from "react"
-import {Feed, Grid,  Label, Segment, Divider, Icon, Input } from 'semantic-ui-react'
+import {Feed, Label, Segment, Divider, Input } from 'semantic-ui-react'
 
-
-const sillyAvatars = [
-    "https://react.semantic-ui.com/images/avatar/small/joe.jpg",
-    "https://react.semantic-ui.com/images/avatar/small/elliot.jpg",
-    "https://react.semantic-ui.com/images/avatar/small/stevie.jpg",
-    "https://react.semantic-ui.com/images/avatar/small/veronika.jpg",
-    "https://react.semantic-ui.com/images/avatar/small/jenny.jpg",
-    "https://react.semantic-ui.com/images/avatar/small/christian.jpg"
-]
-
-const people = ["Admin"]
 
 const ChatWindow = (props) => {
 

@@ -187,9 +187,11 @@ def create_game():
         print(f"Starting new game: {game_options}")
         game_id = secrets.token_urlsafe(4)
         game_port = find_available_port()
+        store_game_info(game_id, game_port, game_options)
         if start_game(game_id, game_port, game_options):
-            store_game_info(game_id, game_port, game_options)
-        return jsonify(dict(url=f"/draft/g/{game_id}"))
+            return jsonify(dict(url=f"/draft/g/{game_id}"))
+        else:
+            abort(400, "Unable to start game")
     else:
         abort(400, "Must send JSON")
 

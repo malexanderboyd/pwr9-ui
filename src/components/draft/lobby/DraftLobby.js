@@ -1,6 +1,6 @@
 import './DraftLobby.css';
 
-import React, {Fragment, Suspense, useEffect, useReducer, useState} from 'react';
+import React, {Fragment, Suspense, useReducer} from 'react';
 
 import {reducer, initialState, DraftLobbyReducerActions} from "./DraftLobbyReducer";
 import Select from 'react-select'

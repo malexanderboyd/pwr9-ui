@@ -28,3 +28,13 @@
     transform: rotate(360deg);
   }
 }
+
+.magicCard:hover {
+  opacity: .75;
+}
+
+.magicCard {
+  height: 340px !important;
+  width: 240px !important;
+  cursor: pointer !important;
+}

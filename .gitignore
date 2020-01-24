@@ -21,3 +21,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+functions/data/*
+functions/redis-data/
+functions/__pycache__/
+functions/.idea/
