@@ -1,19 +1,53 @@
-import re
-from contextlib import closing
-import socket
-
-from celery import Celery
-
-import pathlib
 import filecmp
-
-from flask import Flask, jsonify, request, abort
-
-from flask_cors import CORS
-import redis
-import os
 import json
+import os
+import pathlib
+import random
+import re
 import secrets
+import socket
+from collections import defaultdict
+from contextlib import closing
+from dataclasses import dataclass
+
+import redis
+import requests
+from celery import Celery
+from flask import Flask, jsonify, request, abort
+from flask_cors import CORS
+
+
+@dataclass
+class MTGJSON:
+    BASE_URL: str = "https://api.magicthegathering.io/v1"
+    VERSION_URL: str = f"{BASE_URL}/files/version.json"
+    SETS_URL: str = f"{BASE_URL}/sets"
+    BOOSTER_GEN_URL: str = f"{BASE_URL}/sets/{{set_id}}/booster"
+
+@dataclass(init=False)
+class MagicCard:
+    name: str
+    cmc: float
+    colors: list
+    type: str
+    types: list
+    rarity: str
+    set: str
+    text: str
+    imageUrl: str = None
+    manaCost: str = None
+
+    def __init__(self, name, cmc, colors, type, types, rarity, set, text, imageUrl=None, manaCost=None, **kwargs):
+        self.name = name
+        self.manaCost = manaCost
+        self.cmc = cmc
+        self.colors = colors
+        self.type = type
+        self.types = types
+        self.rarity = rarity
+        self.set = set
+        self.text = text
+        self.imageUrl = imageUrl
 
 
 def make_celery(flask_app):
@@ -98,6 +132,31 @@ def cubes():
 
         return jsonify(cubes)
 
+@app.route('/set/<string:identifier>/pack')
+def set_booster(identifier):
+    try:
+
+        numPacks = request.args.get('n')
+
+        if numPacks:
+            try:
+                numPacks = int(numPacks)
+            except ValueError:
+                numPacks = 1
+
+        packs = []
+        for i in range(numPacks or 1):
+            res = cache.get(f'set_{identifier.lower()}')
+            set = json.loads(res.decode("utf-8"))
+            pack = random.choices(set, k=15)
+            packs.append(
+                [card.get('image_uris', {}).get('normal') for card in pack]
+            )
+        return jsonify(dict(packs=packs))
+    except Exception as e:
+        abort(500, str(e))
+
+
 
 @app.route('/sets')
 def sets():
@@ -159,7 +218,6 @@ def game_info(game_id):
 
     return jsonify(game_options)
 
-
 def store_game_info(game_id, game_port, game_options):
     game_options["port"] = game_port
     try:
@@ -194,6 +252,8 @@ def create_game():
             abort(400, "Unable to start game")
     else:
         abort(400, "Must send JSON")
+
+
 
 
 def start_game(game_id, game_port, game_options):

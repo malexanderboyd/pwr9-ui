@@ -10,7 +10,7 @@ const Card = (props) => {
 
     return (
         <span>
-            <Image className="magicCard" key={cardDetails.details.name} src={cardDetails.details.url}/>
+            <Image className="magicCard" key={cardDetails.details} src={cardDetails.details}/>
         </span>
     )
 };
@@ -20,10 +20,22 @@ const DeckFeed = (props) => {
 
     const {content} = props;
 
+    if(content == false) {
+        return (
+            <p>Loading...</p>
+        )
+    }
+
+    let packs = Object.keys(content[0] || {})
+
+    const pack_one = content[0][packs[0]] || []
+
     return (
         <Segment>
             <Image.Group size={"medium"}>
-                {content.map(details => {
+                {pack_one.packs[0].map(details => {
+
+
                     return (
                         <Card cardDetails={{details}}/>
                     )
@@ -37,15 +49,7 @@ const DeckFeed = (props) => {
 
 const DeckList = (props) => {
 
-    // let  {content} = props;
-
-    let content = [{
-        name: "Brazen Borrower",
-        url: "https://img.scryfall.com/cards/png/front/c/2/c2089ec9-0665-448f-bfe9-d181de127814.png?1572489838"
-    }]
-    for (let i = 0; i < 4; i++) {
-        content = content.concat(content.slice(0))
-    }
+    let   { content } = props;
 
     return (
         <Grid divided="vertically">

@@ -421,7 +421,7 @@ const CreateDraftPanel = () => {
                         privateGame: store.privateGame,
                         gameType: store.gameType,
                         gameMode: store.gameMode,
-                        options: store.gameOptions[store.gameType][store.gameMode]
+                        options: store.gameOptions
                     })
 
                 }}>
