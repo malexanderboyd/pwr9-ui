@@ -20,20 +20,19 @@ const DeckFeed = (props) => {
 
     const {content} = props;
 
-    if(content == false) {
+    if(content === null || content.length === 0) {
         return (
             <p>Loading...</p>
         )
     }
 
-    let packs = Object.keys(content[0] || {})
-
-    const pack_one = content[0][packs[0]] || []
+    let {setName, pack} = content[0];
 
     return (
         <Segment>
+            <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
-                {pack_one.packs[0].map(details => {
+                {pack.map(details => {
 
 
                     return (

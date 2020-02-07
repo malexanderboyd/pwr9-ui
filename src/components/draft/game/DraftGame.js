@@ -150,7 +150,7 @@ function DraftGame() {
                         </Statistic.Group>
                         <Header as='h2'>Pwr9 Draft</Header>
                         <Header size="tiny">Draft Game Coming Soon! (ID: {id})</Header>
-                        <Header size="tiny">Players: {TotalPlayers}</Header>
+                        <Header size="tiny">Players: {TotalPlayers}/{gameInfo["totalPlayers"]}</Header>
                         {IsGameHost && !GameStarted ? <HostOptions socket={socket}/> : <div/>}
                     </Segment>
                 </Grid.Column>

@@ -16,6 +16,10 @@ from celery import Celery
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 
+from collections import namedtuple
+
+SortedSet = namedtuple("SortedSet", ["basic", "common", "uncommon", "rare", "mythic", "special", "size"])
+
 
 @dataclass
 class MTGJSON:
@@ -23,6 +27,7 @@ class MTGJSON:
     VERSION_URL: str = f"{BASE_URL}/files/version.json"
     SETS_URL: str = f"{BASE_URL}/sets"
     BOOSTER_GEN_URL: str = f"{BASE_URL}/sets/{{set_id}}/booster"
+
 
 @dataclass(init=False)
 class MagicCard:
@@ -132,6 +137,7 @@ def cubes():
 
         return jsonify(cubes)
 
+
 @app.route('/set/<string:identifier>/pack')
 def set_booster(identifier):
     try:
@@ -148,14 +154,44 @@ def set_booster(identifier):
         for i in range(numPacks or 1):
             res = cache.get(f'set_{identifier.lower()}')
             set = json.loads(res.decode("utf-8"))
-            pack = random.choices(set, k=15)
+
+            def sort_set(set: list) -> SortedSet:
+
+                _sorted_set = defaultdict(list)
+                for card in set:
+                    if not re.match(r'basic land', card.get('type_line'), re.IGNORECASE):
+                        _sorted_set[card.get('rarity')].append(card)
+
+                return SortedSet(
+                    basic=_sorted_set.get('basic'),
+                    common=_sorted_set.get('common'),
+                    uncommon=_sorted_set.get('uncommon'),
+                    rare=_sorted_set.get('rare'),
+                    mythic=_sorted_set.get('mythic'),
+                    special=_sorted_set.get('special'),
+                    size=len(set),
+                )
+
+            sorted_set = sort_set(set)
+            if not sorted_set.rare:
+                sorted_set = sorted_set._replace(rare=sorted_set.uncommon)
+
+            # 11 commons, 3 uncommons, either 1 rare (7 / 8 chance) or 1 mythic rare
+            pack = [] + random.choices(sorted_set.uncommon, k=3)
+            pack = pack + random.choices(sorted_set.common, k=11)
+            if random.randint(0, 8) == 0 and len(sorted_set.mythic) > 0:
+                pack = pack + random.choices(sorted_set.mythic, k=1)
+            else:
+                pack = pack + random.choices(sorted_set.rare, k=1)
+
+            while len(pack) < 15:
+                pack = pack + random.choices(sorted_set.common, k=1)
             packs.append(
                 [card.get('image_uris', {}).get('normal') for card in pack]
             )
         return jsonify(dict(packs=packs))
     except Exception as e:
         abort(500, str(e))
-
 
 
 @app.route('/sets')
@@ -218,6 +254,7 @@ def game_info(game_id):
 
     return jsonify(game_options)
 
+
 def store_game_info(game_id, game_port, game_options):
     game_options["port"] = game_port
     try:
@@ -252,8 +289,6 @@ def create_game():
             abort(400, "Unable to start game")
     else:
         abort(400, "Must send JSON")
-
-
 
 
 def start_game(game_id, game_port, game_options):

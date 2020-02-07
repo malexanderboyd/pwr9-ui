@@ -162,8 +162,8 @@ def cache_data(key: str, json_data: dict):
         cache.close()
 
 
-# mtg_set_data = download_new_mtg_sets()
-# cache_data('sets', mtg_set_data)
+mtg_set_data = download_new_mtg_sets()
+cache_data('sets', mtg_set_data)
 
 with open(pathlib.Path('data').joinpath('cubes.json'), 'r') as cubes_file:
     cache_data('cubes', json.load(cubes_file))
