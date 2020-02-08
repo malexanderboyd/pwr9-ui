@@ -155,11 +155,19 @@ def set_booster(identifier):
             res = cache.get(f'set_{identifier.lower()}')
             set = json.loads(res.decode("utf-8"))
 
+            def _is_basic_land(card_type_line) -> bool:
+                if not card_type_line:
+                    return False
+                return re.match(r'basic land', card_type_line, re.IGNORECASE) is not None
+
+            def is_english_card(card_lang) -> bool:
+                return card_lang.lower() == 'en' if card_lang else False
+
             def sort_set(set: list) -> SortedSet:
 
                 _sorted_set = defaultdict(list)
                 for card in set:
-                    if not re.match(r'basic land', card.get('type_line'), re.IGNORECASE):
+                    if not _is_basic_land(card.get('type_line')) and is_english_card(card.get('lang')):
                         _sorted_set[card.get('rarity')].append(card)
 
                 return SortedSet(
@@ -187,7 +195,7 @@ def set_booster(identifier):
             while len(pack) < 15:
                 pack = pack + random.choices(sorted_set.common, k=1)
             packs.append(
-                [card.get('image_uris', {}).get('normal') for card in pack]
+                pack
             )
         return jsonify(dict(packs=packs))
     except Exception as e:
@@ -246,7 +254,7 @@ def game_info(game_id):
         cache.close()
 
     if cached_game_options is None:
-        return jsonify({})
+        abort(404)
 
     game_options = json.loads(cached_game_options.decode("utf-8"))
 

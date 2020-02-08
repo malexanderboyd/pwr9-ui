@@ -1,22 +1,46 @@
-import {Segment} from "semantic-ui-react"
-import React from "react"
-import {Header, Grid, Image} from "semantic-ui-react"
+import {Grid, Header, Image, Segment, Label} from "semantic-ui-react"
+import React, {Fragment, useState} from "react"
 
 const Card = (props) => {
 
+    let {cardDetails, autopick, index, setAutoPickedCard, setPickedCard} = props;
 
+    const card = cardDetails.details;
+    let component;
+    if(autopick) {
+            component = (
+            <Fragment>
 
-    let {cardDetails} = props;
+            <Image className="magicCard" key={card.id} src={card["image_uris"]["normal"]}
+                   label={<Label as='a' color='violet' attached='bottom left'>Autopick</Label>}
+                   onClick={() => {
+                       setPickedCard(index)
+                   }}/>
+            </Fragment>
+        )
+    } else {
+        component = (
+            <Image className="magicCard" key={card.id} src={card["image_uris"]["normal"]}
+                   onClick={() => {
+                       setAutoPickedCard(index)
+                   }}/>
+        )
+    }
+
 
     return (
-        <span>
-            <Image className="magicCard" key={cardDetails.details} src={cardDetails.details}/>
-        </span>
+        <Fragment>
+           {component}
+        </Fragment>
     )
 };
 
 
 const DeckFeed = (props) => {
+
+    let [PickedCard, setPickedCard] = useState(null)
+    let [AutoPickedCard, setAutoPickedCard] = useState(null);
+
 
     const {content} = props;
 
@@ -26,17 +50,23 @@ const DeckFeed = (props) => {
         )
     }
 
+
     let {setName, pack} = content[0];
+
 
     return (
         <Segment>
             <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
-                {pack.map(details => {
+                {pack.map((details, i) => {
 
+                    let autoPick = false;
+                    if(i === AutoPickedCard) {
+                        autoPick = true
+                    }
 
                     return (
-                        <Card cardDetails={{details}}/>
+                        <Card cardDetails={{details}} autopick={autoPick} index={i} setAutoPickedCard={setAutoPickedCard} setPickedCard={setPickedCard} />
                     )
                 })
                 }
