@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/infrastructure" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pwr9/pwr9-api" vcs="Git" />
   </component>
 </project>

@@ -17,7 +17,7 @@ const sockets = {}
 
 const openNewGameSocket = (port) => {
     if (!sockets.hasOwnProperty(port)) {
-        sockets[port] = new WebSocket(`ws://localhost:${port}/ws`);
+        sockets[port] = new WebSocket(`ws://api.librajobs.org:${port}/ws`);
     }
     return sockets[port]
 }

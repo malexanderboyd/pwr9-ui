@@ -31,9 +31,9 @@ const HostOptions = (props) => {
                     setTimerEnabled(!TimerEnabled)
                 }} label={<label>Timer</label>}/>
                 {TimerEnabled === true ? <Dropdown placeholder={"Select Type"}
-                                                   onChange={(e) => {
+                                                   onChange={(e, data) => {
                                                        if (TimerEnabled) {
-                                                           setTimerSettings(e.target.value)
+                                                           setTimerSettings(data.value)
                                                        }
                                                    }
                                                    }
@@ -86,10 +86,11 @@ function DraftGame() {
     let [TotalPlayers, setTotalPlayers] = useState(0);
     let [IsGameHost, setIsGameHost] = useState(false);
     let [GameStarted, setGameStarted] = useState(false)
+    let [PoolContents, setPoolContents] = useState([]);
     let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:8000/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://api.librajobs.org/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -121,9 +122,12 @@ function DraftGame() {
                 setGameStarted(true)
                 break;
             case "deck_content":
-                let newDeckContents = [...DeckContents, JSON.parse(event.data)]
-                setDeckContents(newDeckContents)
+                setDeckContents([JSON.parse(event.data)])
                 break;
+            case "pool_content":
+                setPoolContents(
+                    JSON.parse(event.data)
+                )
             default:
                 console.log(`unknown msg type: ${event.type}`)
                 break;
@@ -164,7 +168,7 @@ function DraftGame() {
                         <Label color={"purple"} ribbon={"left"}>
                             Deck
                         </Label>
-                        <DeckList socket={socket} content={DeckContents}/>
+                        <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}/>
                     </Segment>
                 </Grid.Column>
             </Grid.Row>

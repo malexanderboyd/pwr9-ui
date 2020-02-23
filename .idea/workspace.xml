@@ -1,12 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fd5f6868-8685-4274-8406-7e89ff07ba3a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/data/cubes.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/start_celery_worker.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/update_mtg_json_version.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/warm_cache.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/web.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/us-east-2/aws/redis/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/us-east-2/aws/redis/main.tf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pwr9/pwr9-api/populate_cubes_and_set_names.py" beforeDir="false" afterPath="$PROJECT_DIR$/pwr9/pwr9-api/populate_cubes_and_set_names.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pwr9/pwr9-api/populate_sets.py" beforeDir="false" afterPath="$PROJECT_DIR$/pwr9/pwr9-api/populate_sets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pwr9/pwr9-api/web.py" beforeDir="false" afterPath="$PROJECT_DIR$/pwr9/pwr9-api/web.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/draft/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/draft/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/draft/game/DeckList.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/draft/game/DeckList.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/draft/game/DraftGame.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/draft/game/DraftGame.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/draft/lobby/DraftLobby.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/draft/lobby/DraftLobby.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/serviceWorker.js" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
+  </component>
   <component name="ProjectId" id="1V5O88JVQ5PuCh2s3K43ywwJjsB" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/.nvm/versions/node/v10.15.2/bin/node" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.jscs" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.jscs" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.jscs" value="$USER_HOME$/.nvm/versions/node/v12.13.1/lib/node_modules/jscs" />
     <property name="nodejs_interpreter_path" value="$USER_HOME$/.nvm/versions/node/v12.13.1/bin/node" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+  </component>
+  <component name="RunManager" selected="npm.start">
+    <configuration name="debug" type="JavascriptDebugType" uri="http://localhost:3000">
+      <method v="2" />
+    </configuration>
+    <configuration name="Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.start" />
+        <item itemvalue="Docker.Dockerfile" />
+        <item itemvalue="npm.build" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fd5f6868-8685-4274-8406-7e89ff07ba3a" name="Default Changelist" comment="" />
+      <created>1581258898632</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1581258898632</updated>
+      <workItem from="1581258902654" duration="9021000" />
+      <workItem from="1582430389244" duration="709000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="321" y="94" key="#JSCS" timestamp="1581207311550">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state x="321" y="94" key="#JSCS/0.23.1440.825@0.23.1440.825" timestamp="1581207311550" />
+    <state x="185" y="91" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1581215533557">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state x="185" y="91" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.825@0.23.1440.825" timestamp="1581215533557" />
+    <state x="428" y="245" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1581302057594">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state x="428" y="245" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1440.825@0.23.1440.825" timestamp="1581302057594" />
+    <state x="484" y="139" key="#xdebugger.evaluate" timestamp="1581298903327">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state x="484" y="139" key="#xdebugger.evaluate/0.23.1440.825@0.23.1440.825" timestamp="1581298903327" />
+    <state width="1419" height="210" key="GridCell.Tab.0.bottom" timestamp="1582432032635">
+      <screen x="0" y="23" width="1440" height="813" />
+    </state>
+    <state width="1419" height="210" key="GridCell.Tab.0.bottom/0.23.1440.813@0.23.1440.813" timestamp="1582432032635" />
+    <state width="1419" height="271" key="GridCell.Tab.0.bottom/0.23.1440.825@0.23.1440.825" timestamp="1581733298011" />
+    <state width="1419" height="210" key="GridCell.Tab.0.center" timestamp="1582432032633">
+      <screen x="0" y="23" width="1440" height="813" />
+    </state>
+    <state width="1419" height="210" key="GridCell.Tab.0.center/0.23.1440.813@0.23.1440.813" timestamp="1582432032633" />
+    <state width="1419" height="271" key="GridCell.Tab.0.center/0.23.1440.825@0.23.1440.825" timestamp="1581733298009" />
+    <state width="1419" height="210" key="GridCell.Tab.0.left" timestamp="1582432032633">
+      <screen x="0" y="23" width="1440" height="813" />
+    </state>
+    <state width="1419" height="210" key="GridCell.Tab.0.left/0.23.1440.813@0.23.1440.813" timestamp="1582432032633" />
+    <state width="1419" height="271" key="GridCell.Tab.0.left/0.23.1440.825@0.23.1440.825" timestamp="1581733298009" />
+    <state width="1419" height="210" key="GridCell.Tab.0.right" timestamp="1582432032634">
+      <screen x="0" y="23" width="1440" height="813" />
+    </state>
+    <state width="1419" height="210" key="GridCell.Tab.0.right/0.23.1440.813@0.23.1440.813" timestamp="1582432032634" />
+    <state width="1419" height="271" key="GridCell.Tab.0.right/0.23.1440.825@0.23.1440.825" timestamp="1581733298010" />
+    <state width="1419" height="271" key="GridCell.Tab.1.bottom" timestamp="1581733298014">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.1.bottom/0.23.1440.825@0.23.1440.825" timestamp="1581733298014" />
+    <state width="1419" height="271" key="GridCell.Tab.1.center" timestamp="1581733298012">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.1.center/0.23.1440.825@0.23.1440.825" timestamp="1581733298012" />
+    <state width="1419" height="271" key="GridCell.Tab.1.left" timestamp="1581733298011">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.1.left/0.23.1440.825@0.23.1440.825" timestamp="1581733298011" />
+    <state width="1419" height="271" key="GridCell.Tab.1.right" timestamp="1581733298013">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.1.right/0.23.1440.825@0.23.1440.825" timestamp="1581733298013" />
+    <state width="1419" height="271" key="GridCell.Tab.2.bottom" timestamp="1581733298017">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.2.bottom/0.23.1440.825@0.23.1440.825" timestamp="1581733298017" />
+    <state width="1419" height="271" key="GridCell.Tab.2.center" timestamp="1581733298015">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.2.center/0.23.1440.825@0.23.1440.825" timestamp="1581733298015" />
+    <state width="1419" height="271" key="GridCell.Tab.2.left" timestamp="1581733298015">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.2.left/0.23.1440.825@0.23.1440.825" timestamp="1581733298015" />
+    <state width="1419" height="271" key="GridCell.Tab.2.right" timestamp="1581733298016">
+      <screen x="0" y="23" width="1440" height="825" />
+    </state>
+    <state width="1419" height="271" key="GridCell.Tab.2.right/0.23.1440.825@0.23.1440.825" timestamp="1581733298016" />
+    <state x="387" y="184" width="816" height="542" key="find.popup" timestamp="1582430541437">
+      <screen x="0" y="23" width="1440" height="813" />
+    </state>
+    <state x="387" y="184" width="816" height="542" key="find.popup/0.23.1440.813@0.23.1440.813" timestamp="1582430541437" />
+    <state x="387" y="186" width="816" height="550" key="find.popup/0.23.1440.825@0.23.1440.825" timestamp="1581300922456" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/draft/game/DraftGame.js</url>
+          <line>127</line>
+          <option name="timeStamp" value="125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/draft/game/DeckList.js</url>
+          <line>106</line>
+          <option name="timeStamp" value="127" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/draft/game/DeckList.js</url>
+          <line>132</line>
+          <option name="timeStamp" value="128" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/draft/game/DeckList.js</url>
+          <line>57</line>
+          <option name="timeStamp" value="130" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/pwr9_serverless$Debug_Application.dat" NAME="Debug Application Coverage Results" MODIFIED="1578448702890" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="WipCoverageRunner" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

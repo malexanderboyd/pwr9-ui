@@ -1,7 +1,20 @@
-import {Grid, Header, Image, Segment, Label} from "semantic-ui-react"
-import React, {Fragment, useState} from "react"
+import {Grid, Header, Image, Segment, Label, Loader, Progress} from "semantic-ui-react"
+import React, {Fragment, useState, useEffect} from "react"
+
 
 const Card = (props) => {
+    let {cardDetails} = props;
+    const card = cardDetails.details;
+    return (<Fragment>
+        <Image className="magicCard" key={card.id} src={card["image_uris"]["normal"]}
+               onClick={() => {
+                   console.log('clicked ' + card.name)
+               }}/>
+    </Fragment>
+    )
+}
+
+const AvailableCard = (props) => {
 
     let {cardDetails, autopick, index, setAutoPickedCard, setPickedCard} = props;
 
@@ -36,19 +49,56 @@ const Card = (props) => {
 };
 
 
-const DeckFeed = (props) => {
+const DeckZones = (props) => {
+    const {content} = props;
+    if(content === null || content.length === 0) {
+       return (<Loader inline active>Waiting for picks</Loader>)
+    }
 
-    let [PickedCard, setPickedCard] = useState(null)
+    return (
+        <Segment>
+            <Image.Group size={"medium"}>
+                {content.map((details) => {
+                    return (
+                        <Card cardDetails={{details}} />
+                    )
+                })
+                }
+            </Image.Group>
+        </Segment>
+    )
+}
+
+const DeckFeed = (props) => {
     let [AutoPickedCard, setAutoPickedCard] = useState(null);
 
+    useEffect(() => {
+        setAutoPickedCard(null);
+    }, [props])
 
-    const {content} = props;
+    const {content, socket} = props;
+
+    let waiting = false;
 
     if(content === null || content.length === 0) {
         return (
-            <p>Loading...</p>
+            <Progress active percent={100} color='blue'>
+                Waiting for game to start
+            </Progress>
         )
     }
+
+    const setPickedCard = (pickedCardIdex) => {
+        socket.send(
+            JSON.stringify({
+                type: "choose_card",
+                data: JSON.stringify({
+                    pickedCardIndex: pickedCardIdex,
+                })
+            })
+        )
+        waiting = true;
+    };
 
 
     let {setName, pack} = content[0];
@@ -66,7 +116,7 @@ const DeckFeed = (props) => {
                     }
 
                     return (
-                        <Card cardDetails={{details}} autopick={autoPick} index={i} setAutoPickedCard={setAutoPickedCard} setPickedCard={setPickedCard} />
+                        <AvailableCard cardDetails={{details}} autopick={autoPick} index={i} setAutoPickedCard={setAutoPickedCard} setPickedCard={setPickedCard} />
                     )
                 })
                 }
@@ -78,26 +128,26 @@ const DeckFeed = (props) => {
 
 const DeckList = (props) => {
 
-    let   { content } = props;
+    let   { poolContent, content, socket } = props;
 
     return (
         <Grid divided="vertically">
             <Grid.Row columns={1}>
                 <Grid.Column>
                     <Header size={"huge"}>Available Cards</Header>
-                    <DeckFeed content={content}/>
+                    <DeckFeed socket={socket} content={content}/>
                 </Grid.Column>
                 <Grid.Column>
                     <Header size={"huge"}>Main Deck</Header>
-                    <DeckFeed content={content}/>
+                    <DeckZones content={poolContent}/>
                 </Grid.Column>
                 <Grid.Column>
                     <Header size={"huge"}>Sideboard</Header>
-                    <DeckFeed content={content}/>
+                    {/*<DeckFeed content={content}/>*/}
                 </Grid.Column>
                 <Grid.Column>
                     <Header size={"huge"}>Junk</Header>
-                    <DeckFeed content={content}/>
+                    {/*<DeckFeed content={content}/>*/}
                 </Grid.Column>
             </Grid.Row>
         </Grid>
