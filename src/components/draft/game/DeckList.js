@@ -71,22 +71,24 @@ const DeckZones = (props) => {
 
 const DeckFeed = (props) => {
     let [AutoPickedCard, setAutoPickedCard] = useState(null);
-
-    useEffect(() => {
-        setAutoPickedCard(null);
-    }, [props])
+    let [Waiting, setWaiting] = useState(false)
 
     const {content, socket} = props;
 
-    let waiting = false;
+    useEffect(() => {
+        setAutoPickedCard(null);
+        setWaiting(false)
+    }, [content])
 
-    if(content === null || content.length === 0) {
+
+    if(content === null || content.length === 0 || Waiting) {
         return (
             <Progress active percent={100} color='blue'>
-                Waiting for game to start
+                Waiting for next pack
             </Progress>
         )
     }
+
 
     const setPickedCard = (pickedCardIdex) => {
         socket.send(
@@ -97,7 +99,7 @@ const DeckFeed = (props) => {
                 })
             })
         )
-        waiting = true;
+        setWaiting(true)
     };
 
 

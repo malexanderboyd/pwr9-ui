@@ -314,8 +314,8 @@ const Chaos = ({store, dispatch, gameType}) => {
 }
 
 const GameModePanel = ({store, dispatch, gameMode, gameType}) => {
-    const {data: cubeData, error: cubeError} = useSWR('http://api.librajobs.org/cubes', fetchToJson, {revalidateOnFocus: false});
-    const {data: returnedSets, error: setsError} = useSWR('http://api.librajobs.org/sets', fetchToJson, {revalidateOnFocus: false});
+    const {data: cubeData, error: cubeError} = useSWR('http://localhost:8000/cubes', fetchToJson, {revalidateOnFocus: false});
+    const {data: returnedSets, error: setsError} = useSWR('http://localhost:8000/sets', fetchToJson, {revalidateOnFocus: false});
 
     if (cubeError || setsError) {
         return <JSONErrorDiv error={cubeError}/>
@@ -433,7 +433,7 @@ const CreateDraftPanel = () => {
 }
 
 const startGame = (gameSettings) => {
-    fetch('http://api.librajobs.org/game', {
+    fetch('http://localhost:8000/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

@@ -90,7 +90,7 @@ function DraftGame() {
     let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://api.librajobs.org/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:8000/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -128,6 +128,7 @@ function DraftGame() {
                 setPoolContents(
                     JSON.parse(event.data)
                 )
+                break
             default:
                 console.log(`unknown msg type: ${event.type}`)
                 break;
