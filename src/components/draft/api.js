@@ -8,8 +8,6 @@ function subscribeToUpdates(socket, cb) {
         cb(null, JSON.parse(event.data))
     }
 
-    // socket.on('timer', timestamp => cb(null, timestamp));
-    // socket.emit('subscribeToUpdates', 1000);
 }
 
 const sockets = {}
@@ -17,7 +15,7 @@ const sockets = {}
 
 const openNewGameSocket = (port) => {
     if (!sockets.hasOwnProperty(port)) {
-        sockets[port] = new WebSocket(`ws://localhost:${port}/ws`);
+        sockets[port] = new WebSocket(`ws://api.librajobs.org:${port}/ws`);
     }
     return sockets[port]
 }

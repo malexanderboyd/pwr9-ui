@@ -86,11 +86,12 @@ function DraftGame() {
     let [TotalPlayers, setTotalPlayers] = useState(0);
     let [IsGameHost, setIsGameHost] = useState(false);
     let [GameStarted, setGameStarted] = useState(false)
+    let [GameEnded, setGameEnded] = useState(false)
     let [PoolContents, setPoolContents] = useState([]);
     let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:8000/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://api.librajobs.org/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -102,7 +103,8 @@ function DraftGame() {
         )
     }
 
-    console.log('rerendering');
+    const gameMode = gameInfo["gameMode"]
+    const gameType = gameInfo["gameType"]
 
     const socket = openNewGameSocket(gameInfo.port);
 
@@ -120,6 +122,9 @@ function DraftGame() {
                 break;
             case "start_game":
                 setGameStarted(true)
+                break;
+            case "end_game":
+                setGameEnded(true)
                 break;
             case "deck_content":
                 setDeckContents([JSON.parse(event.data)])
@@ -145,17 +150,17 @@ function DraftGame() {
                         </Label>
                         <Statistic.Group size='mini'>
                             <Statistic>
-                                <Statistic.Value>{gameInfo["gameMode"]}</Statistic.Value>
+                                <Statistic.Value>{gameMode}</Statistic.Value>
                                 <Statistic.Label>Mode</Statistic.Label>
                             </Statistic>
                             <Statistic>
-                                <Statistic.Value>{gameInfo["gameType"]}</Statistic.Value>
+                                <Statistic.Value>{gameType}</Statistic.Value>
                                 <Statistic.Label>Type</Statistic.Label>
                             </Statistic>
                         </Statistic.Group>
                         <Header as='h2'>Pwr9 Draft</Header>
-                        <Header size="tiny">Draft Game Coming Soon! (ID: {id})</Header>
                         <Header size="tiny">Players: {TotalPlayers}/{gameInfo["totalPlayers"]}</Header>
+                        {GameEnded ? <p>Draft has Ended! Good Luck!</p> : <div/>}
                         {IsGameHost && !GameStarted ? <HostOptions socket={socket}/> : <div/>}
                     </Segment>
                 </Grid.Column>
@@ -163,13 +168,11 @@ function DraftGame() {
                     <ChatWindow socket={socket} content={ChatContents}/>
                 </Grid.Column>
             </Grid.Row>
-            <Grid.Row columns={1} stretched centered>
+            <Grid.Row columns={1} centered>
                 <Grid.Column>
                     <Segment raised>
-                        <Label color={"purple"} ribbon={"left"}>
-                            Deck
-                        </Label>
-                        <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}/>
+                        <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}
+                                  gameEnded={GameEnded}/>
                     </Segment>
                 </Grid.Column>
             </Grid.Row>
