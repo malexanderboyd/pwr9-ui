@@ -142,7 +142,7 @@ function DraftGame() {
 
     return (
         <Grid>
-            <Grid.Row columns={2} stretched centered>
+            <Grid.Row columns={2} centered>
                 <Grid.Column width={10}>
                     <Segment raised>
                         <Label color='blue' ribbon={"left"}>
