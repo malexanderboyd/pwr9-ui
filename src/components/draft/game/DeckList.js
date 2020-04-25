@@ -328,7 +328,7 @@ const DeckFeed = (props) => {
 
     return (
         <Segment>
-            <Timer setTimeUp={setTimeUp} TimeInSeconds={999}/>
+            <Timer setTimeUp={setTimeUp} TimeInSeconds={2}/>
             <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
                 {pack.map((details, i) => {
