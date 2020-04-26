@@ -16,10 +16,54 @@ const JSONFormError = (error) => {
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 
+const gameModeFromGameInfo = (gameInfo) => {
+    switch (gameInfo["gameMode"]) {
+        case GameModesEnum.chaos:
+            return "chaos"
+        case GameModesEnum.cube:
+            return "cube"
+        default:
+            return "regular"
+    }
+}
+
+const gameTypeFromGameInfo = (gameInfo) => {
+    switch (gameInfo["gameType"]) {
+        case GameTypesEnum.sealed:
+            return "sealed"
+        default:
+            return "draft"
+    }
+}
+const TimerOptions =  [{
+    key: 'leisurely',
+    text: 'Leisurely - Starts @ 90s and decrements by 5s per pick',
+    value: 'leisurely',
+},
+    {
+        key: 'slow',
+        text: 'Slow - Starts @ 75s and decrements by 5s per pick',
+        value: 'slow',
+    },
+    {
+        key: 'moderate',
+        text: 'Moderate - Starts @ 55s A happy medium between slow, and fast.',
+        value: 'moderate',
+    },
+    {
+        key: 'fast',
+        text: 'Fast - Starts @ 40s, based on official WOTC timing',
+        value: 'fast',
+    },
+]
+
 
 export {
     GameModesEnum,
     GameTypesEnum,
+    TimerOptions,
     JSONFormError,
-    fetchToJson
+    fetchToJson,
+    gameModeFromGameInfo,
+    gameTypeFromGameInfo
 }

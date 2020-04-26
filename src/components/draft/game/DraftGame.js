@@ -1,11 +1,24 @@
 import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
 
-import {Header, Grid, Dropdown, Checkbox, Statistic, Segment, Label, GridRow} from 'semantic-ui-react'
+import {
+    Header,
+    Grid,
+    Dropdown,
+    Checkbox,
+    Statistic,
+    Segment,
+    Label,
+    GridRow,
+    Message,
+    Form,
+    Container
+} from 'semantic-ui-react'
 import {openNewGameSocket, subscribeToUpdates} from "../api"
 import useSWR from "swr"
 import {ChatWindow} from "./ChatWindow"
 import DeckList from "./DeckList"
+import {gameModeFromGameInfo, gameTypeFromGameInfo, TimerOptions} from "../lobby/util"
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 const JSONErrorDiv = (error) => {
@@ -19,66 +32,51 @@ const HostOptions = (props) => {
     let [TimerSettings, setTimerSettings] = useState({});
 
     return (
-        <div>
-            <GridRow>
-                <p>You are the host!</p>
-            </GridRow>
-            <GridRow>
-                <Checkbox label={<label>Bots - Coming soon!</label>} disabled/>
-            </GridRow>
-            <GridRow>
-                <Checkbox checked={TimerEnabled} onChange={() => {
-                    setTimerEnabled(!TimerEnabled)
-                }} label={<label>Timer</label>}/>
-                {TimerEnabled === true ? <Dropdown placeholder={"Select Type"}
-                                                   onChange={(e, data) => {
-                                                       if (TimerEnabled) {
-                                                           setTimerSettings(data.value)
-                                                       }
-                                                   }
-                                                   }
-                                                   fluid
-                                                   selection
-                                                   options={[{
-                                                       key: 'leisurely',
-                                                       text: 'Leisurely - Starts @ 90s and decrements by 5s per pick',
-                                                       value: 'leisurely',
-                                                   },
-                                                       {
-                                                           key: 'slow',
-                                                           text: 'Slow - Starts @ 75s and decrements by 5s per pick',
-                                                           value: 'slow',
-                                                       },
-                                                       {
-                                                           key: 'moderate',
-                                                           text: 'Moderate - Starts @ 55s A happy medium between slow, and fast.',
-                                                           value: 'moderate',
-                                                       },
-                                                       {
-                                                           key: 'fast',
-                                                           text: 'Fast - Starts @ 40s, based on official WOTC timing',
-                                                           value: 'fast',
-                                                       },
-                                                   ]}/> : <div/>}
-            </GridRow>
-            <GridRow>
-                <button
-                    onClick={() => {
-                        socket.send(
-                            JSON.stringify({
-                                type: "start_game",
-                                data: JSON.stringify({
-                                    timer: TimerSettings,
+        <Container>
+                <Message color={"olive"} size="tiny">
+                    <Message.Header>You are the Host!</Message.Header>
+                </Message>
+            <Segment>
+                <Form>
+                    <Form.Checkbox
+                        fluid
+                        toggle
+                        onChange={() => setTimerEnabled(!TimerEnabled)}
+                        checked={TimerEnabled === true}
+                        label="Timer"/>
+                    {TimerEnabled ? <Form.Field>
+                            <Dropdown placeholder={"Select Type"}
+                                      onChange={(e, data) => {
+                                          if (TimerEnabled) {
+                                              setTimerSettings(data.value)
+                                          }
+                                      }
+                                      }
+                                      fluid
+                                      selection
+                                      options={TimerOptions}/>
+                        </Form.Field> : <div/>}
+                    <Form.Button
+                        onClick={() => {
+                            socket.send(
+                                JSON.stringify({
+                                    type: "start_game",
+                                    data: JSON.stringify({
+                                        timer: TimerSettings,
+                                    })
                                 })
-                            })
-                        )
-                    }}
-                    className="ui icon right labeled button">
-                    <i aria-hidden="true" className="right arrow icon"/>
-                    Start Game
-                </button>
-            </GridRow>
-        </div>
+                            )
+                        }}
+                        content="Start Game"
+                        icon="right arrow"
+                        labelPosition="right"
+                        color="green">
+                        <i aria-hidden="true" className="right arrow icon"/>
+                        Start Game
+                    </Form.Button>
+                </Form>
+            </Segment>
+        </Container>
     )
 }
 
@@ -103,8 +101,9 @@ function DraftGame() {
         )
     }
 
-    const gameMode = gameInfo["gameMode"]
-    const gameType = gameInfo["gameType"]
+
+    const gameMode = gameModeFromGameInfo(gameInfo)
+    const gameType = gameTypeFromGameInfo(gameInfo)
 
     const socket = openNewGameSocket(gameInfo.port);
 
@@ -141,10 +140,10 @@ function DraftGame() {
     });
 
     return (
-        <Grid>
-            <Grid.Row columns={2} centered>
-                <Grid.Column width={10}>
-                    <Segment raised>
+        <Grid style={{height: '100vh'}}>
+            <Grid.Row columns={2}>
+                <Grid.Column>
+                    <Segment>
                         <Label color='blue' ribbon={"left"}>
                             Game Info
                         </Label>
@@ -158,19 +157,29 @@ function DraftGame() {
                                 <Statistic.Label>Type</Statistic.Label>
                             </Statistic>
                         </Statistic.Group>
-                        <Header as='h2'>Pwr9 Draft</Header>
-                        <Header size="tiny">Players: {TotalPlayers}/{gameInfo["totalPlayers"]}</Header>
-                        {GameEnded ? <p>Draft has Ended! Good Luck!</p> : <div/>}
-                        {IsGameHost && !GameStarted ? <HostOptions socket={socket}/> : <div/>}
                     </Segment>
                 </Grid.Column>
-                <Grid.Column width={3}>
-                    <ChatWindow socket={socket} content={ChatContents}/>
+                <Grid.Column>
+                    <Segment>
+                        <Grid divided="vertically">
+                            <Grid.Row columns={1}>
+                                <Grid.Column>
+                                    <Header size="small">Players: {TotalPlayers}/{gameInfo["totalPlayers"]}</Header>
+                                    {GameEnded ? <Header size="large">Draft has Ended! Good Luck!</Header> : <div/>}
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row columns={1}>
+                                <Grid.Column>
+                                    {IsGameHost && !GameStarted || true ? <HostOptions socket={socket}/> : <div/>}
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Segment>
                 </Grid.Column>
             </Grid.Row>
-            <Grid.Row columns={1} centered>
+            <Grid.Row columns={1}>
                 <Grid.Column>
-                    <Segment raised>
+                    <Segment>
                         <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}
                                   gameEnded={GameEnded}/>
                     </Segment>
