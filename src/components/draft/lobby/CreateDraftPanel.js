@@ -6,7 +6,7 @@ import GameTypesRadio from "./GameTypesRadio"
 import GameModePanel from "./GameModePanel"
 
 const startGame = (gameSettings) => {
-    fetch('http://localhost:8002/game', {
+    fetch('http://draft.librajobs.org/api/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

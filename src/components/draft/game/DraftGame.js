@@ -89,7 +89,7 @@ function DraftGame() {
     let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:8002/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://draft.librajobs.org/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
