@@ -1,6 +1,6 @@
 import useSWR from "swr"
 import {DraftLobbyReducerActions} from "./DraftLobbyReducer"
-import React from "react"
+import React, {useEffect} from "react"
 import {GameModesEnum, JSONFormError, fetchToJson} from "./util"
 import GameModeChaos from "./GameModeChaos"
 import GameModeCube from "./GameModeCube"
@@ -10,6 +10,12 @@ import {Dimmer} from "semantic-ui-react"
 const GameModePanel = ({store, dispatch}) => {
     const {data: cubeData, error: cubeError} = useSWR('http://draft.librajobs.org/api/cubes', fetchToJson, {revalidateOnFocus: false});
     const {data: returnedSets, error: setsError} = useSWR('http://draft.librajobs.org/api/sets', fetchToJson, {revalidateOnFocus: false});
+
+    useEffect(() => {
+        if (store.presetCubes == null && cubeData != null) {
+            dispatch({type: DraftLobbyReducerActions.PRESET_CUBES, presetCubes: cubeData})
+        }
+    })
 
     if (cubeError || setsError) {
         return <JSONFormError error={cubeError}/>
@@ -26,10 +32,6 @@ const GameModePanel = ({store, dispatch}) => {
             <div/>
         )
     }
-    if (store.presetCubes == null && cubeData != null) {
-        dispatch({type: DraftLobbyReducerActions.PRESET_CUBES, presetCubes: cubeData})
-    }
-
 
     const availableSets = []
 
@@ -42,7 +44,7 @@ const GameModePanel = ({store, dispatch}) => {
             for (let i = 0; i < blockSets.length; i++) {
                 const set = blockSets[i];
                 currentBlock.options.push(
-                    {value: set.id, label: set.name}
+                    {value: set.code, label: set.name}
                 )
             }
             availableSets.push(currentBlock)

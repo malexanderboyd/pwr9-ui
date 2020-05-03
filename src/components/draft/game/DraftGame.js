@@ -88,6 +88,8 @@ function DraftGame() {
     let [PoolContents, setPoolContents] = useState([]);
     let [DeckContents, setDeckContents] = useState([]);
     let [ChatContents, setChatContents] = useState([]);
+    let [GameRound, setGameRound] = useState(1)
+    let [GamePackNumber, setGamePackNumber] = useState(1)
     let {id} = useParams();
     const {data: gameInfo, error: gameError} = useSWR(`http://draft.librajobs.org/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
@@ -126,7 +128,24 @@ function DraftGame() {
                 setGameEnded(true)
                 break;
             case "deck_content":
-                setDeckContents([JSON.parse(event.data)])
+                const nextRoundContent = JSON.parse(event.data)
+
+                const packNumber = nextRoundContent["packNumber"] || null
+                const round = nextRoundContent["round"] || null
+
+                if (packNumber !== null) {
+                    if(packNumber !== GamePackNumber) {
+                        setGamePackNumber(packNumber)
+                    }
+                    delete nextRoundContent["packNumber"]
+                }
+                if(round != null) {
+                    setGameRound(
+                        round
+                    )
+                    delete nextRoundContent["round"]
+                }
+                setDeckContents([nextRoundContent])
                 break;
             case "pool_content":
                 setPoolContents(
@@ -139,6 +158,26 @@ function DraftGame() {
         }
     });
 
+    const gameStatistics = [
+        {
+            label: "Mode",
+            value: gameMode
+        },
+        {
+            label: "Type",
+            value: gameType
+        },
+        {
+            label: "Pack",
+            value: GamePackNumber
+        },
+        {
+            label: "Round",
+            value: GameRound
+        }
+    ]
+
+
     return (
         <Grid style={{height: '100vh'}}>
             <Grid.Row columns={2}>
@@ -148,14 +187,14 @@ function DraftGame() {
                             Game Info
                         </Label>
                         <Statistic.Group size='mini'>
-                            <Statistic>
-                                <Statistic.Value>{gameMode}</Statistic.Value>
-                                <Statistic.Label>Mode</Statistic.Label>
-                            </Statistic>
-                            <Statistic>
-                                <Statistic.Value>{gameType}</Statistic.Value>
-                                <Statistic.Label>Type</Statistic.Label>
-                            </Statistic>
+                            {gameStatistics.map(stat => {
+                                return (
+                                    <Statistic>
+                                        <Statistic.Value>{stat.value}</Statistic.Value>
+                                        <Statistic.Label>{stat.label}</Statistic.Label>
+                                    </Statistic>
+                                )
+                            })}
                         </Statistic.Group>
                     </Segment>
                 </Grid.Column>
