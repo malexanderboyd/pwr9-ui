@@ -22,27 +22,38 @@ import white from "./W.svg"
 
 import Timer from "./Timer"
 
+const SCRYFALL_IMAGE_URL = "https://api.scryfall.com/cards/{card_id}?format=image&version=normal"
+
+const LAND_SCRYFALL_IDS = {
+    SWAMP: "66bb5192-58bc-4efe-a145-2e804fd3483d",
+    FOREST: "c4be31c4-9cb3-4a07-865b-5621127df660",
+    PLAINS: "40aca5ca-a37b-4919-aef6-2510b4779161"  ,
+    ISLAND: "92daaa39-cd2f-4c03-8f41-92d99d0a3366",
+    MOUNTAIN: "dc3f4154-9347-4ceb-8744-9f1ace90d33f"
+}
+
+
 const LandImages = {
     "swamp": {
-        imgUri: "https://img.scryfall.com/cards/normal/front/6/6/66bb5192-58bc-4efe-a145-2e804fd3483d.jpg?1581481510",
+        imgID: LAND_SCRYFALL_IDS.SWAMP,
         src: black,
         name: "swamp"
     },
     "forest": {
-        imgUri: "https://img.scryfall.com/cards/normal/front/c/4/c4be31c4-9cb3-4a07-865b-5621127df660.jpg?1581482262",
+        imgID: LAND_SCRYFALL_IDS.FOREST,
         src: green, name: "forest"
     },
     "plains": {
-        imgUri: "https://img.scryfall.com/cards/normal/front/4/0/40aca5ca-a37b-4919-aef6-2510b4779161.jpg?1581481482",
+        imgID: LAND_SCRYFALL_IDS.PLAINS,
         src: white, name: "plains"
     },
     "island": {
-        imgUri: "https://img.scryfall.com/cards/normal/front/9/2/92daaa39-cd2f-4c03-8f41-92d99d0a3366.jpg?1581481496",
+        imgID: LAND_SCRYFALL_IDS.ISLAND,
         src: blue,
         name: "island"
     },
     "mountain": {
-        imgUri: "https://img.scryfall.com/cards/normal/front/d/c/dc3f4154-9347-4ceb-8744-9f1ace90d33f.jpg?1581482260",
+        imgID: LAND_SCRYFALL_IDS.MOUNTAIN,
         src: red,
         name: "mountain"
     }
@@ -51,9 +62,10 @@ const LandImages = {
 const Card = (props) => {
     let {onClick, cardDetails} = props;
     const card = cardDetails.details;
+    const src = SCRYFALL_IMAGE_URL.replace("{card_id}", card.scryfallId)
     return (
         <Fragment>
-            <Image onClick={onClick} className="magicCard" key={card.id} src={card["image_uris"]["normal"]}/>
+            <Image onClick={onClick} className="magicCard" key={card.id} src={src}/>
         </Fragment>
     )
 }
@@ -61,14 +73,13 @@ const Card = (props) => {
 const AvailableCard = (props) => {
 
     let {cardDetails, autopick, index, setAutoPickedCard, setPickedCard} = props;
-
     const card = cardDetails.details;
+    const src = SCRYFALL_IMAGE_URL.replace("{card_id}", card.scryfallId)
     let component;
     if (autopick) {
         component = (
             <Fragment>
-
-                <Image className="magicCard" key={card.id} src={card["image_uris"]["normal"]}
+                <Image className="magicCard" key={card.id} src={src}
                        label={<Label as='a' color='violet' attached='bottom left'>Autopick</Label>}
                        onClick={() => {
                            setPickedCard(index)
@@ -77,7 +88,7 @@ const AvailableCard = (props) => {
         )
     } else {
         component = (
-            <Image className="magicCard" key={card.id} src={card["image_uris"]["normal"]}
+            <Image className="magicCard" key={card.id} src={src}
                    onClick={() => {
                        setAutoPickedCard(index)
                    }}/>
@@ -138,7 +149,10 @@ const DeckZones = (props) => {
                     _land.push(
                         <Card key={`${i}-${landInfo.name}`} cardDetails={{
                             src: landInfo.src,
-                            details: {id: `${i}-${landInfo.name}`, image_uris: {normal: landInfo.imgUri}}
+                            details: {
+                                id: `${i}-${landInfo.name}`,
+                                scryfallId: landInfo.imgID
+                            }
                         }}/>
                     )
                 }
@@ -328,7 +342,7 @@ const DeckFeed = (props) => {
 
     return (
         <Segment>
-            <Timer setTimeUp={setTimeUp} TimeInSeconds={999}/>
+            <Timer setTimeUp={setTimeUp} TimeInSeconds={2}/>
             <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
                 {pack.map((details, i) => {

@@ -1,5 +1,5 @@
-import React, {useState} from "react"
-import {Feed, Label, Segment, Divider, Input } from 'semantic-ui-react'
+import React, {Fragment, useState} from "react"
+import {Feed, Label, Segment, Divider, Input, Form} from 'semantic-ui-react'
 
 
 const ChatWindow = (props) => {
@@ -10,10 +10,7 @@ const ChatWindow = (props) => {
     let [Author, setAuthor] = useState("Magic Player")
 
     return (
-            <Segment raised style={{color: "black"}}>
-                <Label color='red' ribbon={"right"}>
-                    Chat
-                </Label>
+            <Fragment>
                 <Feed size={"small"} style={{height: "10vh", overflow: "auto"}}>
                 {Object.entries(content).map(([timestamp, details])=>{
 
@@ -31,8 +28,7 @@ const ChatWindow = (props) => {
                 }
                 </Feed>
                 <Divider/>
-                <Label>
-                    <form
+                    <Form
                         onSubmit={(e) => {
                             e.preventDefault()
                             socket.send(
@@ -45,23 +41,26 @@ const ChatWindow = (props) => {
                                 })
                             )
                         }}>
-                    <Input
-                        onChange={(e) => {
-                            setUserMessage(e.target.value)
-                        }}
-                        value={UserMessage}
-                        type="text"
-                        placeholder={"Player name"}/>
-                    </form>
-                </Label>
-                    <Input
+                    <Form.Input
+                        fluid
                         onChange={(e) => {
                             setAuthor(e.target.value)
                         }}
                         value={Author}
                         type="text"
                         placeholder={"Player name"}/>
-            </Segment>
+                        <Form.Input
+                            fluid
+                            onChange={(e) => {
+                                setUserMessage(e.target.value)
+                            }}
+                            value={UserMessage}
+                            type="text"
+                            placeholder={"Type a message"}/>
+                        <Form.Button primary>Send</Form.Button>
+                    </Form>
+
+            </Fragment>
     )
 }
 
