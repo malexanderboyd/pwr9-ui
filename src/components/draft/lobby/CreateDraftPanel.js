@@ -25,7 +25,7 @@ const startGame = (store, setError) => {
 
 
 
-    fetch('http://localhost/api/game', {
+    fetch('http://draft.librajobs.org/api/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
