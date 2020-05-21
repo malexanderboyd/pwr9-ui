@@ -1,18 +1,5 @@
-import {
-    Grid,
-    Header,
-    Image,
-    Segment,
-    Label,
-    Divider,
-    Progress,
-    Table,
-    Container,
-    Icon,
-    Button,
-    Input
-} from "semantic-ui-react"
-import React, {Fragment, useState, useEffect, useReducer} from "react"
+import {Button, Divider, Grid, Header, Icon, Image, Input, Label, Progress, Segment, Table} from "semantic-ui-react"
+import React, {Fragment, useEffect, useReducer, useState} from "react"
 
 import black from "./B.svg"
 import green from "./G.svg"
@@ -27,7 +14,7 @@ const SCRYFALL_IMAGE_URL = "https://api.scryfall.com/cards/{card_id}?format=imag
 const LAND_SCRYFALL_IDS = {
     SWAMP: "66bb5192-58bc-4efe-a145-2e804fd3483d",
     FOREST: "c4be31c4-9cb3-4a07-865b-5621127df660",
-    PLAINS: "40aca5ca-a37b-4919-aef6-2510b4779161"  ,
+    PLAINS: "40aca5ca-a37b-4919-aef6-2510b4779161",
     ISLAND: "92daaa39-cd2f-4c03-8f41-92d99d0a3366",
     MOUNTAIN: "dc3f4154-9347-4ceb-8744-9f1ace90d33f"
 }
@@ -202,96 +189,97 @@ const DeckZones = (props) => {
             }
         }
 
-        for(let [landType, count] of Object.entries(LandContents)) {
-            if(count > 0) {
+        for (let [landType, count] of Object.entries(LandContents)) {
+            if (count > 0) {
                 contents.push(
                     `${count} ${landType}\n`
                 )
             }
         }
 
-    for (let i = 0; i < SideContents.length; i++) {
-        if (i === 0) {
+        for (let i = 0; i < SideContents.length; i++) {
+            if (i === 0) {
+                contents.push(
+                    "\nSideboard\n"
+                )
+            }
             contents.push(
-                "\nSideboard\n"
+                `1 ${SideContents[i]["name"]}\n`
             )
         }
-        contents.push(
-            `1 ${SideContents[i]["name"]}\n`
-        )
+
+
+        const downloadElement = document.createElement('a')
+
+        const textFile = new Blob(contents, {type: 'text/plain'})
+
+        downloadElement.href = URL.createObjectURL(textFile)
+        downloadElement.download = `godr4ft-${deckName}.txt`
+        document.body.appendChild(downloadElement)
+        downloadElement.click()
+
     }
 
+    const DeckPanel = (props) => {
 
-    const downloadElement = document.createElement('a')
+        let {dispatch} = props
 
-    const textFile = new Blob(contents, {type: 'text/plain'})
+        return (
+            <div>
+                <Button onClick={downloadDeck} basic size={"mini"} color={"purple"}>
+                    <Icon name={'download'}/>
+                    Download as txt
+                </Button>
+                <Button basic size={"mini"} color={"green"}>
+                    <Icon name={'copy'}/>
+                    Copy to clipboard
+                </Button>
+                <Table basic='very' compact collapsing>
+                    <Table.Body>
+                        {Object.keys(LandImages).map((key, idx) => {
+                            const landInfo = LandImages[key]
+                            return (<Table.Row key={idx}>
+                                    <Table.Cell>
+                                        <Header as='h4' image>
+                                            <Image avatar size="mini" src={landInfo.src}/>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Input type="number" onChange={(e, {value}) => {
+                                            Lands[landInfo.name] = value
+                                            dispatch({
+                                                type: landInfo.name,
+                                                value: parseInt(value)
+                                            })
+                                        }
+                                        } size={"mini"} placeholder={"0"} value={Lands[landInfo.name]}/>
+                                    </Table.Cell>
+                                </Table.Row>
+                            )
+                        })}
+                    </Table.Body>
+                </Table>
+            </div>
+        )
 
-    downloadElement.href = URL.createObjectURL(textFile)
-    downloadElement.download = `godr4ft-${deckName}.txt`
-    document.body.appendChild(downloadElement)
-    downloadElement.click()
-
-}
-
-const DeckPanel = (props) => {
-
-    let {dispatch} = props
+    }
 
     return (
-        <div>
-            <Button onClick={downloadDeck} basic size={"mini"} color={"purple"}>
-                <Icon name={'download'}/>
-                Download as txt
-            </Button>
-            <Button basic size={"mini"} color={"green"}>
-                <Icon name={'copy'}/>
-                Copy to clipboard
-            </Button>
-            <Table basic='very' compact collapsing>
-                <Table.Body>
-                    {Object.keys(LandImages).map((key, idx) => {
-                        const landInfo = LandImages[key]
-                        return (<Table.Row key={idx}>
-                                <Table.Cell>
-                                    <Header as='h4' image>
-                                        <Image avatar size="mini" src={landInfo.src}/>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Input type="number" onChange={(e, {value}) => {
-                                        Lands[landInfo.name] = value
-                                        dispatch({
-                                            type: landInfo.name,
-                                            value: parseInt(value)
-                                        })
-                                    }
-                                    } size={"mini"} placeholder={"0"} value={Lands[landInfo.name]}/>
-                                </Table.Cell>
-                            </Table.Row>
-                        )
-                    })}
-                </Table.Body>
-            </Table>
-        </div>
+        <Fragment>
+            <Header size={"huge"}>Deck</Header>
+            <DeckPanel dispatch={dispatch}/>
+            <Header size={"large"}>Main ({MainContents.length + landCards.length})</Header>
+            <Image.Group size={"medium"}>
+                {mainCards}
+                {landCards}
+            </Image.Group>
+            <Divider section/>
+            <Header size={"large"}>Side ({SideContents.length})</Header>
+            <Image.Group size={"medium"}>
+                {sideCards}
+            </Image.Group>
+        </Fragment>
     )
-
-}
-
-return (
-    <Segment>
-        <DeckPanel dispatch={dispatch}/>
-        <Header size={"large"}>Main ({MainContents.length + landCards.length})</Header>
-        <Image.Group size={"medium"}>
-            {mainCards}
-            {landCards}
-        </Image.Group>
-        <Divider section/>
-        <Header size={"large"}>Side ({SideContents.length})</Header>
-        <Image.Group size={"medium"}>
-            {sideCards}
-        </Image.Group>
-    </Segment>
-)
 }
 
 const DeckFeed = (props) => {
@@ -385,10 +373,17 @@ const DeckList = (props) => {
     return (
         <Grid divided="vertically">
             <Grid.Row columns={1}>
-                {availableCards}
                 <Grid.Column>
-                    <Header size={"huge"}>Deck</Header>
-                    <DeckZones content={poolContent}/>
+                    <Segment>
+                        {availableCards}
+                    </Segment>
+                </Grid.Column>
+            </Grid.Row>
+            <Grid.Row columns={1}>
+                <Grid.Column>
+                    <Segment>
+                        <DeckZones content={poolContent}/>
+                    </Segment>
                 </Grid.Column>
             </Grid.Row>
         </Grid>

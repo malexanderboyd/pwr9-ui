@@ -4,17 +4,21 @@ import './index.css';
 import App from './App';
 import {Route, BrowserRouter, Switch, Link} from "react-router-dom"
 import DraftHome from "./components/draft/draftHome"
+import {Menu} from "semantic-ui-react"
+
 
 const routing = (
     <BrowserRouter>
-            <ul>
-                <p>
+            <Menu>
+                <Menu.Item
+                    name="Home">
                     <Link to="/">Home</Link>
-                </p>
-                <p>
+                </Menu.Item>
+                <Menu.Item
+                    name="Draft">
                     <Link to="/draft">Draft</Link>
-                </p>
-            </ul>
+                </Menu.Item>
+            </Menu>
         <Switch>
             <Route exact path="/" component={App}/>
             <Route path="/draft" component={DraftHome}/>

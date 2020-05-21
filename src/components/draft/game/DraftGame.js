@@ -5,20 +5,18 @@ import {
     Header,
     Grid,
     Dropdown,
-    Checkbox,
     Statistic,
     Segment,
     Label,
-    GridRow,
     Message,
     Form,
-    Container
+    Container, Divider, Icon
 } from 'semantic-ui-react'
 import {openNewGameSocket, subscribeToUpdates} from "../api"
 import useSWR from "swr"
-import {ChatWindow} from "./ChatWindow"
 import DeckList from "./DeckList"
 import {gameModeFromGameInfo, gameTypeFromGameInfo, TimerOptions} from "../lobby/util"
+import Statistics from "./stats/statistics"
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 const JSONErrorDiv = (error) => {
@@ -36,10 +34,8 @@ const HostOptions = (props) => {
                 <Message color={"olive"} size="tiny">
                     <Message.Header>You are the Host!</Message.Header>
                 </Message>
-            <Segment>
                 <Form>
                     <Form.Checkbox
-                        fluid
                         toggle
                         onChange={() => setTimerEnabled(!TimerEnabled)}
                         checked={TimerEnabled === true}
@@ -75,7 +71,6 @@ const HostOptions = (props) => {
                         Start Game
                     </Form.Button>
                 </Form>
-            </Segment>
         </Container>
     )
 }
@@ -91,7 +86,7 @@ function DraftGame() {
     let [GameRound, setGameRound] = useState(1)
     let [GamePackNumber, setGamePackNumber] = useState(1)
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://draft.librajobs.org/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://localhost/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -174,54 +169,47 @@ function DraftGame() {
         {
             label: "Round",
             value: GameRound
+        },
+        {
+            label: "Players",
+            value: `${TotalPlayers}/${gameInfo["totalPlayers"]}`
         }
     ]
 
-
     return (
-        <Grid style={{height: '100vh'}}>
-            <Grid.Row columns={2}>
+        <Grid>
+            <Grid.Row stretched columns={2}>
                 <Grid.Column>
-                    <Segment>
-                        <Label color='blue' ribbon={"left"}>
-                            Game Info
-                        </Label>
-                        <Statistic.Group size='mini'>
-                            {gameStatistics.map(stat => {
+                    <Grid.Row centered columns={1}>
+                        <Segment color={"violet"}>
+                            <Label color='blue'>
+                                Game Info
+                            </Label>
+                            <Statistic.Group size='mini'>
+                                {gameStatistics.map(stat => {
                                 return (
                                     <Statistic>
                                         <Statistic.Value>{stat.value}</Statistic.Value>
                                         <Statistic.Label>{stat.label}</Statistic.Label>
                                     </Statistic>
                                 )
-                            })}
-                        </Statistic.Group>
-                    </Segment>
+                                })}
+                            </Statistic.Group>
+                            <Divider/>
+                            {IsGameHost && !GameStarted || true ? <HostOptions socket={socket}/> : <div/>}
+                        </Segment>
+                    </Grid.Row>
                 </Grid.Column>
                 <Grid.Column>
                     <Segment>
-                        <Grid divided="vertically">
-                            <Grid.Row columns={1}>
-                                <Grid.Column>
-                                    <Header size="small">Players: {TotalPlayers}/{gameInfo["totalPlayers"]}</Header>
-                                    {GameEnded ? <Header size="large">Draft has Ended! Good Luck!</Header> : <div/>}
-                                </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row columns={1}>
-                                <Grid.Column>
-                                    {IsGameHost && !GameStarted || true ? <HostOptions socket={socket}/> : <div/>}
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
+                        <Statistics poolContents={PoolContents}/>
                     </Segment>
                 </Grid.Column>
             </Grid.Row>
             <Grid.Row columns={1}>
                 <Grid.Column>
-                    <Segment>
                         <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}
                                   gameEnded={GameEnded}/>
-                    </Segment>
                 </Grid.Column>
             </Grid.Row>
         </Grid>
