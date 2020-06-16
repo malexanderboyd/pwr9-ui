@@ -9,7 +9,7 @@ import {
     Menu, Tab,
     Table
 } from "semantic-ui-react";
-import DraftGame from "../DraftGame";
+import {DraftGame} from "../DraftGame";
 import Statistics from "../stats/statistics";
 
 

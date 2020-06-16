@@ -7,7 +7,8 @@ import red from "./R.svg"
 import blue from "./U.svg"
 import white from "./W.svg"
 
-import Timer from "./Timer"
+import CountdownTimer from "./CountdownTimer"
+import {GAME_STATUS} from "./DraftGame";
 
 const SCRYFALL_IMAGE_URL = "https://api.scryfall.com/cards/{card_id}?format=image&version=normal"
 
@@ -94,6 +95,8 @@ const AvailableCard = (props) => {
 const DeckZones = (props) => {
     const {content} = props;
 
+    let [AllContents, setAllContents] = useState([])
+
     let [MainContents, setMainContents] = useState([])
     let [SideContents, setSideContents] = useState([])
     let [LandContents, setLandContents] = useState([])
@@ -103,7 +106,11 @@ const DeckZones = (props) => {
     let landCards = <div/>;
 
     useEffect(() => {
-        setMainContents(content)
+        if(content !== null) {
+            if (content.length > 0) {
+                setMainContents(MainContents => [...MainContents, content.pop()])
+            }
+        }
     }, [content])
 
     const landsReducer = (state, action) => {
@@ -180,7 +187,7 @@ const DeckZones = (props) => {
 
         let contents = []
         let deckName = ""
-        for (let i = 0; i < MainContents.length; i++) {
+        for (let i = 0; i < AllContents.length; i++) {
             contents.push(
                 `1 ${MainContents[i]["name"]}\n`
             )
@@ -283,25 +290,31 @@ const DeckZones = (props) => {
 }
 
 const DeckFeed = (props) => {
-    let [TimeUp, setTimeUp] = useState(false)
     let [AutoPickedCard, setAutoPickedCard] = useState(null);
     let [Waiting, setWaiting] = useState(false)
 
-    const {content, socket} = props;
+    const {GameStatus, TimeUp, content, socket} = props;
 
     useEffect(() => {
         setAutoPickedCard(null);
         setWaiting(false)
-        setTimeUp(false)
     }, [content])
 
 
     if (content === null || content.length === 0 || Waiting) {
-        return (
-            <Progress active percent={100} color='blue'>
-                Waiting for next pack
-            </Progress>
-        )
+        if (GameStatus === GAME_STATUS.WAITING) {
+            return (
+                <Header as='h3'>
+                    Waiting for game to start...
+                </Header>
+            )
+        } else if (GameStatus === GAME_STATUS.STARTED) {
+            return (
+                <Header as='h3'>
+                    Waiting on other players to pass a draft pack...
+                </Header>
+            )
+        }
     }
 
 
@@ -330,7 +343,6 @@ const DeckFeed = (props) => {
 
     return (
         <Segment>
-            <Timer setTimeUp={setTimeUp} TimeInSeconds={2}/>
             <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
                 {pack.map((details, i) => {
@@ -353,18 +365,28 @@ const DeckFeed = (props) => {
 
 
 const DeckList = (props) => {
-
-    let {gameEnded, poolContent, content, socket} = props;
+    let {TimerSettings, GameStatus, poolContent, content, socket} = props;
+    let [roundTimer, setRoundTimer] = useState(null)
+    let [TimeUp, setTimeUp] = useState(false)
 
     let availableCards;
 
-    if (gameEnded) {
+    useEffect(() => {
+        console.log(TimerSettings)
+        if(TimerSettings !== null) {
+            console.log("refresh timer" + TimerSettings)
+            setRoundTimer(<CountdownTimer seconds={TimerSettings} setTimeUp={setTimeUp}/>)
+        }
+    }, [TimerSettings])
+
+    if (GameStatus === GAME_STATUS.ENDED) {
         availableCards = <div/>
     } else {
         availableCards = (
             <Grid.Column>
+                {roundTimer !== null && GameStatus === GAME_STATUS.STARTED ? roundTimer : <div/>}
                 <Header size={"huge"}>Available Cards</Header>
-                <DeckFeed socket={socket} content={content}/>
+                <DeckFeed GameStatus={GameStatus} TimeUp={TimeUp}  socket={socket} content={content}/>
             </Grid.Column>
         )
     }

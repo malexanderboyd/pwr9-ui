@@ -17,17 +17,70 @@ import useSWR from "swr"
 import DeckList from "./DeckList"
 import {gameModeFromGameInfo, gameTypeFromGameInfo, TimerOptions} from "../lobby/util"
 import Statistics from "./stats/statistics"
+import CountdownTimer from "./CountdownTimer";
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 const JSONErrorDiv = (error) => {
     return <div>Failed loading data: {JSON.stringify(error)}</div>
+}
+const GAME_STATUS = {
+    WAITING: 1,
+    STARTED: 2,
+    ENDED: 3
 }
 
 const HostOptions = (props) => {
 
     let {socket} = props;
     let [TimerEnabled, setTimerEnabled] = useState(false);
-    let [TimerSettings, setTimerSettings] = useState({});
+    let [ServerForcePick, setServerForcePick] = useState(false)
+    let [TimerSettings, setTimerSettings] = useState("");
+
+    const TimerSpeedOptions =  [{
+        key: 'leisurely',
+        text: 'Leisurely - Starts @ 90s and decrements by 5s per pick',
+        value: 'leisurely',
+    },
+        {
+            key: 'slow',
+            text: 'Slow - Starts @ 75s and decrements by 5s per pick',
+            value: 'slow',
+        },
+        {
+            key: 'moderate',
+            text: 'Moderate - Starts @ 55s A happy medium between slow, and fast.',
+            value: 'moderate',
+        },
+        {
+            key: 'fast',
+            text: 'Fast - Starts @ 40s, based on official WOTC timing',
+            value: 'fast',
+        },
+    ]
+
+    const TimerOptions = () => (
+            <div>
+                <Form.Field>
+                    <Dropdown placeholder={"Select Type"}
+                              onChange={(e, data) => {
+                                  if (TimerEnabled) {
+                                      setTimerSettings(data.value)
+                                  }
+                              }
+                              }
+                              fluid
+                              selection
+                              options={TimerSpeedOptions}/>
+                </Form.Field>
+                <Form.Field>
+                <Form.Checkbox
+                    toggle
+                    onChange={() => setServerForcePick(!ServerForcePick)}
+                    checked={ServerForcePick === true}
+                    label="Server Force Pick Mode: Ignores autopicks and chooses first card when timer has expired."/>
+                </Form.Field>
+            </div>
+    )
 
     return (
         <Container>
@@ -40,18 +93,7 @@ const HostOptions = (props) => {
                         onChange={() => setTimerEnabled(!TimerEnabled)}
                         checked={TimerEnabled === true}
                         label="Timer"/>
-                    {TimerEnabled ? <Form.Field>
-                            <Dropdown placeholder={"Select Type"}
-                                      onChange={(e, data) => {
-                                          if (TimerEnabled) {
-                                              setTimerSettings(data.value)
-                                          }
-                                      }
-                                      }
-                                      fluid
-                                      selection
-                                      options={TimerOptions}/>
-                        </Form.Field> : <div/>}
+                    {TimerEnabled ? <TimerOptions/> : <div/>}
                     <Form.Button
                         onClick={() => {
                             socket.send(
@@ -59,6 +101,7 @@ const HostOptions = (props) => {
                                     type: "start_game",
                                     data: JSON.stringify({
                                         timer: TimerSettings,
+                                        serverForcePick: ServerForcePick,
                                     })
                                 })
                             )
@@ -76,17 +119,17 @@ const HostOptions = (props) => {
 }
 
 function DraftGame() {
-    let [TotalPlayers, setTotalPlayers] = useState(0);
-    let [IsGameHost, setIsGameHost] = useState(false);
-    let [GameStarted, setGameStarted] = useState(false)
-    let [GameEnded, setGameEnded] = useState(false)
-    let [PoolContents, setPoolContents] = useState([]);
-    let [DeckContents, setDeckContents] = useState([]);
-    let [ChatContents, setChatContents] = useState([]);
+    let [TotalPlayers, setTotalPlayers] = useState(0)
+    let [IsGameHost, setIsGameHost] = useState(false)
+    let [GameStatus, setGameStatus] = useState(GAME_STATUS.WAITING)
+    let [PoolContents, setPoolContents] = useState([])
+    let [DeckContents, setDeckContents] = useState([])
+    let [ChatContents, setChatContents] = useState([])
+    let [TimerSettings, setTimerSettings] = useState(null)
     let [GameRound, setGameRound] = useState(1)
     let [GamePackNumber, setGamePackNumber] = useState(1)
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://draft.librajobs.org/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:80/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -97,7 +140,6 @@ function DraftGame() {
             <div>Loading...</div>
         )
     }
-
 
     const gameMode = gameModeFromGameInfo(gameInfo)
     const gameType = gameTypeFromGameInfo(gameInfo)
@@ -117,16 +159,17 @@ function DraftGame() {
                 setIsGameHost(true)
                 break;
             case "start_game":
-                setGameStarted(true)
+                setGameStatus(GAME_STATUS.STARTED)
                 break;
             case "end_game":
-                setGameEnded(true)
+                setGameStatus(GAME_STATUS.ENDED)
                 break;
-            case "deck_content":
+            case "round_content":
                 const nextRoundContent = JSON.parse(event.data)
 
                 const packNumber = nextRoundContent["packNumber"] || null
                 const round = nextRoundContent["round"] || null
+                const timerInSeconds = nextRoundContent["timer"] || null
 
                 if (packNumber !== null) {
                     if(packNumber !== GamePackNumber) {
@@ -140,6 +183,13 @@ function DraftGame() {
                     )
                     delete nextRoundContent["round"]
                 }
+
+                if(timerInSeconds !== null) {
+                    console.log("updating timer for round " + timerInSeconds)
+                    setTimerSettings(timerInSeconds)
+                    delete nextRoundContent["timer"]
+                }
+
                 setDeckContents([nextRoundContent])
                 break;
             case "pool_content":
@@ -176,6 +226,8 @@ function DraftGame() {
         }
     ]
 
+
+
     return (
         <Grid>
             <Grid.Row stretched columns={2}>
@@ -196,7 +248,7 @@ function DraftGame() {
                                 })}
                             </Statistic.Group>
                             <Divider/>
-                            {IsGameHost && !GameStarted || true ? <HostOptions socket={socket}/> : <div/>}
+                            {(IsGameHost || true) && GameStatus === GAME_STATUS.WAITING ? <HostOptions socket={socket}/> : <div/>}
                         </Segment>
                     </Grid.Row>
                 </Grid.Column>
@@ -208,12 +260,15 @@ function DraftGame() {
             </Grid.Row>
             <Grid.Row columns={1}>
                 <Grid.Column>
-                        <DeckList socket={socket} poolContent={PoolContents} content={DeckContents}
-                                  gameEnded={GameEnded}/>
+                    <DeckList socket={socket} TimerSettings={TimerSettings} poolContent={PoolContents} content={DeckContents}
+                                  GameStatus={GameStatus}/>
                 </Grid.Column>
             </Grid.Row>
         </Grid>
     );
 }
 
-export default DraftGame;
+export {
+    DraftGame,
+    GAME_STATUS
+};
