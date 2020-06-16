@@ -1,18 +1,5 @@
-import {
-    Grid,
-    Header,
-    Image,
-    Segment,
-    Label,
-    Divider,
-    Progress,
-    Table,
-    Container,
-    Icon,
-    Button,
-    Input
-} from "semantic-ui-react"
-import React, {Fragment, useState, useEffect, useReducer} from "react"
+import {Button, Divider, Grid, Header, Icon, Image, Input, Label, Progress, Segment, Table} from "semantic-ui-react"
+import React, {Fragment, useEffect, useReducer, useState} from "react"
 
 import black from "./B.svg"
 import green from "./G.svg"
@@ -20,14 +7,15 @@ import red from "./R.svg"
 import blue from "./U.svg"
 import white from "./W.svg"
 
-import Timer from "./Timer"
+import CountdownTimer from "./CountdownTimer"
+import {GAME_STATUS} from "./DraftGame";
 
 const SCRYFALL_IMAGE_URL = "https://api.scryfall.com/cards/{card_id}?format=image&version=normal"
 
 const LAND_SCRYFALL_IDS = {
     SWAMP: "66bb5192-58bc-4efe-a145-2e804fd3483d",
     FOREST: "c4be31c4-9cb3-4a07-865b-5621127df660",
-    PLAINS: "40aca5ca-a37b-4919-aef6-2510b4779161"  ,
+    PLAINS: "40aca5ca-a37b-4919-aef6-2510b4779161",
     ISLAND: "92daaa39-cd2f-4c03-8f41-92d99d0a3366",
     MOUNTAIN: "dc3f4154-9347-4ceb-8744-9f1ace90d33f"
 }
@@ -107,6 +95,8 @@ const AvailableCard = (props) => {
 const DeckZones = (props) => {
     const {content} = props;
 
+    let [AllContents, setAllContents] = useState([])
+
     let [MainContents, setMainContents] = useState([])
     let [SideContents, setSideContents] = useState([])
     let [LandContents, setLandContents] = useState([])
@@ -116,7 +106,11 @@ const DeckZones = (props) => {
     let landCards = <div/>;
 
     useEffect(() => {
-        setMainContents(content)
+        if(content !== null) {
+            if (content.length > 0) {
+                setMainContents(MainContents => [...MainContents, content.pop()])
+            }
+        }
     }, [content])
 
     const landsReducer = (state, action) => {
@@ -193,7 +187,7 @@ const DeckZones = (props) => {
 
         let contents = []
         let deckName = ""
-        for (let i = 0; i < MainContents.length; i++) {
+        for (let i = 0; i < AllContents.length; i++) {
             contents.push(
                 `1 ${MainContents[i]["name"]}\n`
             )
@@ -202,118 +196,125 @@ const DeckZones = (props) => {
             }
         }
 
-        for(let [landType, count] of Object.entries(LandContents)) {
-            if(count > 0) {
+        for (let [landType, count] of Object.entries(LandContents)) {
+            if (count > 0) {
                 contents.push(
                     `${count} ${landType}\n`
                 )
             }
         }
 
-    for (let i = 0; i < SideContents.length; i++) {
-        if (i === 0) {
+        for (let i = 0; i < SideContents.length; i++) {
+            if (i === 0) {
+                contents.push(
+                    "\nSideboard\n"
+                )
+            }
             contents.push(
-                "\nSideboard\n"
+                `1 ${SideContents[i]["name"]}\n`
             )
         }
-        contents.push(
-            `1 ${SideContents[i]["name"]}\n`
-        )
+
+
+        const downloadElement = document.createElement('a')
+
+        const textFile = new Blob(contents, {type: 'text/plain'})
+
+        downloadElement.href = URL.createObjectURL(textFile)
+        downloadElement.download = `godr4ft-${deckName}.txt`
+        document.body.appendChild(downloadElement)
+        downloadElement.click()
+
     }
 
+    const DeckPanel = (props) => {
 
-    const downloadElement = document.createElement('a')
+        let {dispatch} = props
 
-    const textFile = new Blob(contents, {type: 'text/plain'})
+        return (
+            <div>
+                <Button onClick={downloadDeck} basic size={"mini"} color={"purple"}>
+                    <Icon name={'download'}/>
+                    Download as txt
+                </Button>
+                <Button basic size={"mini"} color={"green"}>
+                    <Icon name={'copy'}/>
+                    Copy to clipboard
+                </Button>
+                <Table basic='very' compact collapsing>
+                    <Table.Body>
+                        {Object.keys(LandImages).map((key, idx) => {
+                            const landInfo = LandImages[key]
+                            return (<Table.Row key={idx}>
+                                    <Table.Cell>
+                                        <Header as='h4' image>
+                                            <Image avatar size="mini" src={landInfo.src}/>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Input type="number" onChange={(e, {value}) => {
+                                            Lands[landInfo.name] = value
+                                            dispatch({
+                                                type: landInfo.name,
+                                                value: parseInt(value)
+                                            })
+                                        }
+                                        } size={"mini"} placeholder={"0"} value={Lands[landInfo.name]}/>
+                                    </Table.Cell>
+                                </Table.Row>
+                            )
+                        })}
+                    </Table.Body>
+                </Table>
+            </div>
+        )
 
-    downloadElement.href = URL.createObjectURL(textFile)
-    downloadElement.download = `godr4ft-${deckName}.txt`
-    document.body.appendChild(downloadElement)
-    downloadElement.click()
-
-}
-
-const DeckPanel = (props) => {
-
-    let {dispatch} = props
+    }
 
     return (
-        <div>
-            <Button onClick={downloadDeck} basic size={"mini"} color={"purple"}>
-                <Icon name={'download'}/>
-                Download as txt
-            </Button>
-            <Button basic size={"mini"} color={"green"}>
-                <Icon name={'copy'}/>
-                Copy to clipboard
-            </Button>
-            <Table basic='very' compact collapsing>
-                <Table.Body>
-                    {Object.keys(LandImages).map((key, idx) => {
-                        const landInfo = LandImages[key]
-                        return (<Table.Row key={idx}>
-                                <Table.Cell>
-                                    <Header as='h4' image>
-                                        <Image avatar size="mini" src={landInfo.src}/>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Input type="number" onChange={(e, {value}) => {
-                                        Lands[landInfo.name] = value
-                                        dispatch({
-                                            type: landInfo.name,
-                                            value: parseInt(value)
-                                        })
-                                    }
-                                    } size={"mini"} placeholder={"0"} value={Lands[landInfo.name]}/>
-                                </Table.Cell>
-                            </Table.Row>
-                        )
-                    })}
-                </Table.Body>
-            </Table>
-        </div>
+        <Fragment>
+            <Header size={"huge"}>Deck</Header>
+            <DeckPanel dispatch={dispatch}/>
+            <Header size={"large"}>Main ({MainContents.length + landCards.length})</Header>
+            <Image.Group size={"medium"}>
+                {mainCards}
+                {landCards}
+            </Image.Group>
+            <Divider section/>
+            <Header size={"large"}>Side ({SideContents.length})</Header>
+            <Image.Group size={"medium"}>
+                {sideCards}
+            </Image.Group>
+        </Fragment>
     )
-
-}
-
-return (
-    <Segment>
-        <DeckPanel dispatch={dispatch}/>
-        <Header size={"large"}>Main ({MainContents.length + landCards.length})</Header>
-        <Image.Group size={"medium"}>
-            {mainCards}
-            {landCards}
-        </Image.Group>
-        <Divider section/>
-        <Header size={"large"}>Side ({SideContents.length})</Header>
-        <Image.Group size={"medium"}>
-            {sideCards}
-        </Image.Group>
-    </Segment>
-)
 }
 
 const DeckFeed = (props) => {
-    let [TimeUp, setTimeUp] = useState(false)
     let [AutoPickedCard, setAutoPickedCard] = useState(null);
     let [Waiting, setWaiting] = useState(false)
 
-    const {content, socket} = props;
+    const {GameStatus, TimeUp, content, socket} = props;
 
     useEffect(() => {
         setAutoPickedCard(null);
         setWaiting(false)
-        setTimeUp(false)
     }, [content])
 
 
     if (content === null || content.length === 0 || Waiting) {
-        return (
-            <Progress active percent={100} color='blue'>
-                Waiting for next pack
-            </Progress>
-        )
+        if (GameStatus === GAME_STATUS.WAITING) {
+            return (
+                <Header as='h3'>
+                    Waiting for game to start...
+                </Header>
+            )
+        } else if (GameStatus === GAME_STATUS.STARTED) {
+            return (
+                <Header as='h3'>
+                    Waiting on other players to pass a draft pack...
+                </Header>
+            )
+        }
     }
 
 
@@ -342,7 +343,6 @@ const DeckFeed = (props) => {
 
     return (
         <Segment>
-            <Timer setTimeUp={setTimeUp} TimeInSeconds={2}/>
             <p>Set: {setName}</p>
             <Image.Group size={"medium"}>
                 {pack.map((details, i) => {
@@ -365,18 +365,28 @@ const DeckFeed = (props) => {
 
 
 const DeckList = (props) => {
-
-    let {gameEnded, poolContent, content, socket} = props;
+    let {TimerSettings, GameStatus, poolContent, content, socket} = props;
+    let [roundTimer, setRoundTimer] = useState(null)
+    let [TimeUp, setTimeUp] = useState(false)
 
     let availableCards;
 
-    if (gameEnded) {
+    useEffect(() => {
+        console.log(TimerSettings)
+        if(TimerSettings !== null) {
+            console.log("refresh timer" + TimerSettings)
+            setRoundTimer(<CountdownTimer seconds={TimerSettings} setTimeUp={setTimeUp}/>)
+        }
+    }, [TimerSettings])
+
+    if (GameStatus === GAME_STATUS.ENDED) {
         availableCards = <div/>
     } else {
         availableCards = (
             <Grid.Column>
+                {roundTimer !== null && GameStatus === GAME_STATUS.STARTED ? roundTimer : <div/>}
                 <Header size={"huge"}>Available Cards</Header>
-                <DeckFeed socket={socket} content={content}/>
+                <DeckFeed GameStatus={GameStatus} TimeUp={TimeUp}  socket={socket} content={content}/>
             </Grid.Column>
         )
     }
@@ -385,10 +395,17 @@ const DeckList = (props) => {
     return (
         <Grid divided="vertically">
             <Grid.Row columns={1}>
-                {availableCards}
                 <Grid.Column>
-                    <Header size={"huge"}>Deck</Header>
-                    <DeckZones content={poolContent}/>
+                    <Segment>
+                        {availableCards}
+                    </Segment>
+                </Grid.Column>
+            </Grid.Row>
+            <Grid.Row columns={1}>
+                <Grid.Column>
+                    <Segment>
+                        <DeckZones content={poolContent}/>
+                    </Segment>
                 </Grid.Column>
             </Grid.Row>
         </Grid>

@@ -14,8 +14,9 @@ const sockets = {}
 
 
 const openNewGameSocket = (port) => {
+    // deployed ws://localhost:80/gd/${port}/ws
     if (!sockets.hasOwnProperty(port)) {
-        sockets[port] = new WebSocket(`ws://draft.librajobs.org/gd/${port}/ws`);
+        sockets[port] = new WebSocket(`ws://localhost:${port}/ws`);
     }
     return sockets[port]
 }

@@ -1,12 +1,31 @@
-import React, {useReducer} from "react"
+import React, {useReducer, useState} from "react"
 import {DraftLobbyReducerActions, initialState, reducer} from "./DraftLobbyReducer"
 import {Form, Grid, Header, Segment, Button} from "semantic-ui-react"
 import GameModesRadio from "./GameModesRadio"
 import GameTypesRadio from "./GameTypesRadio"
 import GameModePanel from "./GameModePanel"
 
-const startGame = (gameSettings) => {
-    fetch('http://draft.librajobs.org/api/game', {
+
+
+
+
+
+
+
+const startGame = (store, setError) => {
+
+    const gameSettings = {
+        gameTitle: store.gameTitle,
+        totalPlayers: store.totalPlayers,
+        privateGame: store.privateGame,
+        gameType: store.gameType,
+        gameMode: store.gameMode,
+        options: store.gameOptions
+    }
+
+
+
+    fetch('http://localhost:80/api/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -24,6 +43,7 @@ const startGame = (gameSettings) => {
 const CreateDraftPanel = () => {
 
     const [store, dispatch] = useReducer(reducer, initialState)
+    const [Error, setError] = useState({})
 
     return (
         <Grid textAlign='center' style={{height: '100vh'}}>
@@ -39,22 +59,54 @@ const CreateDraftPanel = () => {
                             iconPosition='left'
                             placeholder='Draft Name'
                             required
+                            error={Error["gameTitle"] ? Error["gameTitle"] : null}
                             onChange={(e) => {
-                                dispatch({gameTitle: e.currentTarget.value, type: DraftLobbyReducerActions.GAME_TITLE});
+                                const desiredGameTitle = e.currentTarget.value
+                                const valid =  /^[a-zA-Z0-9]+[a-zA-Z0-9_.-]*$/.exec(desiredGameTitle);
+                                if (!valid) {
+                                    setError({
+                                        ...Error,
+                                        gameTitle: {
+                                            content: `Please enter a valid game title. Must be a alphanumeric with no spaces`,
+                                            pointing: 'below',
+                                        }
+                                    })
+                                } else {
+                                    setError({
+                                        ...Error,
+                                        gameTitle: null
+                                    })
+                                    dispatch({gameTitle: desiredGameTitle, type: DraftLobbyReducerActions.GAME_TITLE});
+                                }
                             }}/>
                         <Form.Input
                             type='number'
-                            min='1'
+                            min="2"
                             max='100'
+                            error={Error["players"] ? Error["players"] : null}
                             onChange={(e) => {
+                                console.log('hello')
                                 if (isNaN(e.currentTarget.value)) {
+                                    console.log('hello')
+                                    setError({
+                                        ...Error,
+                                        players: {
+                                            content: `Please enter a valid number of players. Must be a number`,
+                                            pointing: 'below',
+                                        }
+                                    })
                                     return
                                 }
-
-                                dispatch({
-                                    totalPlayers: parseInt(e.currentTarget.value),
-                                    type: DraftLobbyReducerActions.TOTAL_PLAYERS
-                                })
+                                else {
+                                    setError({
+                                        ...Error,
+                                        players: null
+                                    })
+                                    dispatch({
+                                        totalPlayers: parseInt(e.currentTarget.value),
+                                        type: DraftLobbyReducerActions.TOTAL_PLAYERS
+                                    })
+                                }
                             }}
                             fluid
                             icon='user'
@@ -70,14 +122,7 @@ const CreateDraftPanel = () => {
                             size='large'
                             color='green'
                             onClick={() => {
-                                startGame({
-                                    gameTitle: store.gameTitle,
-                                    totalPlayers: store.totalPlayers,
-                                    privateGame: store.privateGame,
-                                    gameType: store.gameType,
-                                    gameMode: store.gameMode,
-                                    options: store.gameOptions
-                                })
+                                startGame(store, setError)
                             }}
                         >
                             Start
