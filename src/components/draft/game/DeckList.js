@@ -379,9 +379,10 @@ const DeckList = (props) => {
     let availableCards;
 
     useEffect(() => {
+        console.log("TimerSettings " + TimerSettings)
         if (TimerSettings !== null) {
-            console.log("create new timer at " + TimerSettings)
-            setRoundTimer(<CountdownTimer seconds={TimerSettings} setTimeUp={setTimeUp}/>)
+            console.log("setRoundTimer  " + JSON.stringify(TimerSettings))
+            setRoundTimer(<CountdownTimer timerSettings={TimerSettings} setTimeUp={setTimeUp}/>)
         }
     }, [TimerSettings])
 

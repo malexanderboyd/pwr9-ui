@@ -203,7 +203,7 @@ function DraftGame() {
 
                 if(timerInSeconds !== null) {
                     console.log("received timer seconds for next round " + timerInSeconds)
-                    setTimerSettings(timerInSeconds)
+                    setTimerSettings({seconds:timerInSeconds})
                     delete nextRoundContent["timer"]
                 }
 
