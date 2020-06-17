@@ -8,6 +8,10 @@ function subscribeToUpdates(socket, cb) {
         cb(null, JSON.parse(event.data))
     }
 
+    socket.addEventListener('close', () => {
+        cb(null, {type:"socket_close"})
+    })
+
 }
 
 const sockets = {}

@@ -12,12 +12,13 @@ const CountdownTimer = ({seconds, setTimeUp}) => {
         yellowPhaseStart = Math.floor(seconds * .50)
         redPhaseStart = Math.floor(seconds * .25)
         setTimeLeft(seconds)
+        console.log("[CountdownTimerComponent] useEffect seconds: " + seconds)
     }, [seconds])
 
     useEffect(() => {
         if (!timeLeft) {
             setTimeUp(true)
-            return
+            return () => {}
         }
 
 

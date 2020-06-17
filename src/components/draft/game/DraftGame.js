@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 
 import {
@@ -17,7 +17,6 @@ import useSWR from "swr"
 import DeckList from "./DeckList"
 import {gameModeFromGameInfo, gameTypeFromGameInfo, TimerOptions} from "../lobby/util"
 import Statistics from "./stats/statistics"
-import CountdownTimer from "./CountdownTimer";
 
 const fetchToJson = url => fetch(url).then(_ => _.json())
 const JSONErrorDiv = (error) => {
@@ -119,6 +118,7 @@ const HostOptions = (props) => {
 }
 
 function DraftGame() {
+    let [ConnectedToGameServer, setConnectedToGameServer] = useState(false)
     let [TotalPlayers, setTotalPlayers] = useState(0)
     let [IsGameHost, setIsGameHost] = useState(false)
     let [GameStatus, setGameStatus] = useState(GAME_STATUS.WAITING)
@@ -130,6 +130,19 @@ function DraftGame() {
     let [GamePackNumber, setGamePackNumber] = useState(1)
     let {id} = useParams();
     const {data: gameInfo, error: gameError} = useSWR(`http://localhost:80/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    let socket
+
+    useEffect(() => {
+
+        if(!ConnectedToGameServer && gameInfo && GameStatus === GAME_STATUS.WAITING) {
+            const intervalID = setTimeout(() => {
+                socket = openNewGameSocket(gameInfo.port);
+            }, 5000)
+            return () => clearInterval(intervalID)
+        }
+
+        return () => {}
+    })
 
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
@@ -140,16 +153,20 @@ function DraftGame() {
             <div>Loading...</div>
         )
     }
-
+    socket = openNewGameSocket(gameInfo.port);
     const gameMode = gameModeFromGameInfo(gameInfo)
     const gameType = gameTypeFromGameInfo(gameInfo)
 
-    const socket = openNewGameSocket(gameInfo.port);
 
     subscribeToUpdates(socket, (err, event) => {
         switch (event.type) {
+            case "socket_close":
+                setConnectedToGameServer(false)
+                delete socket[gameInfo.port]
+                break
             case "new_player":
                 setTotalPlayers(event.data);
+                setConnectedToGameServer(true)
                 break;
             case "chat_message":
                 let newContents = [...ChatContents, JSON.parse(event.data)]
@@ -185,7 +202,7 @@ function DraftGame() {
                 }
 
                 if(timerInSeconds !== null) {
-                    console.log("updating timer for round " + timerInSeconds)
+                    console.log("received timer seconds for next round " + timerInSeconds)
                     setTimerSettings(timerInSeconds)
                     delete nextRoundContent["timer"]
                 }
@@ -226,6 +243,9 @@ function DraftGame() {
         }
     ]
 
+    if (!ConnectedToGameServer && GameStatus === GAME_STATUS.WAITING) {
+        return <p>Waiting to connect to host...</p>
+    }
 
 
     return (
