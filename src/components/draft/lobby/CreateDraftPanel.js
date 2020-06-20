@@ -23,15 +23,13 @@ const startGame = (store, setError) => {
         options: store.gameOptions
     }
 
-    console.log("wqe in ehre")
-
     if (gameSettings.totalPlayers == null || isNaN(parseInt(gameSettings.totalPlayers))) {
         setError({"players": "Must set a valid number of players (1-100)"})
         return
     }
 
     console.log("starting new game with settings: "+ JSON.stringify(gameSettings))
-    fetch('http://localhost:80/api/game', {
+    fetch('http://pwr9.net/api/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

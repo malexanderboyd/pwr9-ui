@@ -129,7 +129,7 @@ function DraftGame() {
     let [GameRound, setGameRound] = useState(1)
     let [GamePackNumber, setGamePackNumber] = useState(1)
     let {id} = useParams();
-    const {data: gameInfo, error: gameError} = useSWR(`http://localhost:80/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
+    const {data: gameInfo, error: gameError} = useSWR(`http://pwr9.net/api/game/${id}`, fetchToJson, {revalidateOnFocus: false});
     let socket
 
     useEffect(() => {
@@ -143,7 +143,6 @@ function DraftGame() {
 
         return () => {}
     })
-
     if (gameError) {
         return <JSONErrorDiv error={gameError}/>
     }
