@@ -25,7 +25,7 @@ const startGame = (store, setError) => {
 
 
 
-    fetch('http://localhost:80/api/game', {
+    fetch('http://pwr9.net/api/game', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

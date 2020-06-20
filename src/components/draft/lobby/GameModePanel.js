@@ -8,8 +8,8 @@ import GameModeRegular from "./GameModeRegular"
 import {Dimmer} from "semantic-ui-react"
 
 const GameModePanel = ({store, dispatch}) => {
-    const {data: cubeData, error: cubeError} = useSWR('http://localhost:80/api/cubes', fetchToJson, {revalidateOnFocus: false});
-    const {data: returnedSets, error: setsError} = useSWR('http://localhost:80/api/sets', fetchToJson, {revalidateOnFocus: false});
+    const {data: cubeData, error: cubeError} = useSWR('http://pwr9.net/api/cubes', fetchToJson, {revalidateOnFocus: false});
+    const {data: returnedSets, error: setsError} = useSWR('http://pwr9.net/api/sets', fetchToJson, {revalidateOnFocus: false});
 
     useEffect(() => {
         if (store.presetCubes == null && cubeData != null) {
