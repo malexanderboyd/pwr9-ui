@@ -23,8 +23,12 @@ const startGame = (store, setError) => {
         options: store.gameOptions
     }
 
+    if (gameSettings.totalPlayers == null || isNaN(parseInt(gameSettings.totalPlayers))) {
+        setError({"players": "Must set a valid number of players (1-100)"})
+        return
+    }
 
-
+    console.log("starting new game with settings: "+ JSON.stringify(gameSettings))
     fetch('http://pwr9.net/api/game', {
         method: 'POST',
         headers: {
@@ -36,6 +40,9 @@ const startGame = (store, setError) => {
         .then((res) => res.json())
         .then((response) => {
             window.location.href = response.url;
+        })
+        .catch((err) => {
+          setError(err)
         });
 }
 
@@ -85,7 +92,6 @@ const CreateDraftPanel = () => {
                             max='100'
                             error={Error["players"] ? Error["players"] : null}
                             onChange={(e) => {
-                                console.log('hello')
                                 if (isNaN(e.currentTarget.value)) {
                                     console.log('hello')
                                     setError({

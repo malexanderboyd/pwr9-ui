@@ -1,4 +1,4 @@
-import {Button, Divider, Grid, Header, Icon, Image, Input, Label, Progress, Segment, Table} from "semantic-ui-react"
+import {Button, Divider, Grid, Header, Icon, Image, Input, Label, Popup, Segment, Table} from "semantic-ui-react"
 import React, {Fragment, useEffect, useReducer, useState} from "react"
 
 import black from "./B.svg"
@@ -47,13 +47,38 @@ const LandImages = {
     }
 }
 
+const cardHasFlipSide = (card_obj) => {
+    return card_obj !== null
+        && card_obj.hasOwnProperty('otherFaceIds')
+        && card_obj.otherFaceIds != null
+        && card_obj.otherFaceIds.length > 0
+}
+
 const Card = (props) => {
-    let {onClick, cardDetails} = props;
+    let {onClick, cardDetails, label} = props;
     const card = cardDetails.details;
     const src = SCRYFALL_IMAGE_URL.replace("{card_id}", card.scryfallId)
+    let component
+
+    if (cardHasFlipSide(card)) {
+        const backSrc = SCRYFALL_IMAGE_URL.replace("{card_id}", card.scryfallId) + "&face=back"
+        component = <Popup
+            trigger={<Image label={label} onClick={onClick} className="magicCard" key={card.id} src={src}/>}
+            on='hover'
+            inverted={true}
+            hideOnScroll={true}
+            position='top left'>
+            <Popup.Content>
+                <Image label={label} className="magicCard" key={card.id + "_back"} src={backSrc}/>
+            </Popup.Content>
+        </Popup>
+    } else {
+        component = <Image label={label} onClick={onClick} className="magicCard" key={card.id} src={src}/>
+    }
+
     return (
         <Fragment>
-            <Image onClick={onClick} className="magicCard" key={card.id} src={src}/>
+            {component}
         </Fragment>
     )
 }
@@ -61,34 +86,20 @@ const Card = (props) => {
 const AvailableCard = (props) => {
 
     let {cardDetails, autopick, index, setAutoPickedCard, setPickedCard} = props;
-    const card = cardDetails.details;
-    const src = SCRYFALL_IMAGE_URL.replace("{card_id}", card.scryfallId)
     let component;
+    let label = null
     if (autopick) {
+        label = <Label as='a' color='violet' attached='bottom left'>Autopick</Label>
         component = (
-            <Fragment>
-                <Image className="magicCard" key={card.id} src={src}
-                       label={<Label as='a' color='violet' attached='bottom left'>Autopick</Label>}
-                       onClick={() => {
-                           setPickedCard(index)
-                       }}/>
-            </Fragment>
+            <Card onClick={() => setPickedCard(index)} cardDetails={cardDetails} label={label}/>
         )
     } else {
         component = (
-            <Image className="magicCard" key={card.id} src={src}
-                   onClick={() => {
-                       setAutoPickedCard(index)
-                   }}/>
+            <Card onClick={() => setAutoPickedCard(index)} cardDetails={cardDetails} label={label}/>
         )
     }
 
-
-    return (
-        <Fragment>
-            {component}
-        </Fragment>
-    )
+    return component
 };
 
 
@@ -106,7 +117,7 @@ const DeckZones = (props) => {
     let landCards = <div/>;
 
     useEffect(() => {
-        if(content !== null) {
+        if (content !== null) {
             if (content.length > 0) {
                 setMainContents(MainContents => [...MainContents, content.pop()])
             }
@@ -187,7 +198,7 @@ const DeckZones = (props) => {
 
         let contents = []
         let deckName = ""
-        for (let i = 0; i < AllContents.length; i++) {
+        for (let i = 0; i < MainContents.length; i++) {
             contents.push(
                 `1 ${MainContents[i]["name"]}\n`
             )
@@ -236,10 +247,6 @@ const DeckZones = (props) => {
                 <Button onClick={downloadDeck} basic size={"mini"} color={"purple"}>
                     <Icon name={'download'}/>
                     Download as txt
-                </Button>
-                <Button basic size={"mini"} color={"green"}>
-                    <Icon name={'copy'}/>
-                    Copy to clipboard
                 </Button>
                 <Table basic='very' compact collapsing>
                     <Table.Body>
@@ -372,10 +379,10 @@ const DeckList = (props) => {
     let availableCards;
 
     useEffect(() => {
-        console.log(TimerSettings)
-        if(TimerSettings !== null) {
-            console.log("refresh timer" + TimerSettings)
-            setRoundTimer(<CountdownTimer seconds={TimerSettings} setTimeUp={setTimeUp}/>)
+        console.log("TimerSettings " + TimerSettings)
+        if (TimerSettings !== null) {
+            console.log("setRoundTimer  " + JSON.stringify(TimerSettings))
+            setRoundTimer(<CountdownTimer timerSettings={TimerSettings} setTimeUp={setTimeUp}/>)
         }
     }, [TimerSettings])
 
@@ -386,7 +393,7 @@ const DeckList = (props) => {
             <Grid.Column>
                 {roundTimer !== null && GameStatus === GAME_STATUS.STARTED ? roundTimer : <div/>}
                 <Header size={"huge"}>Available Cards</Header>
-                <DeckFeed GameStatus={GameStatus} TimeUp={TimeUp}  socket={socket} content={content}/>
+                <DeckFeed GameStatus={GameStatus} TimeUp={TimeUp} socket={socket} content={content}/>
             </Grid.Column>
         )
     }

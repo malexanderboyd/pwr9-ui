@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useRef, useReducer} from 'react'
 import {Statistic} from "semantic-ui-react"
 
-const CountdownTimer = ({seconds, setTimeUp}) => {
+const CountdownTimer = ({timerSettings, setTimeUp}) => {
+    let {seconds} = timerSettings
     const [timeLeft, setTimeLeft] = useState(seconds)
     let redPhaseStart, yellowPhaseStart;
     yellowPhaseStart = Math.floor(seconds * .50)
@@ -9,15 +10,17 @@ const CountdownTimer = ({seconds, setTimeUp}) => {
 
     useEffect(() => {
         setTimeUp(false)
+        // we wrap this in an object so useState will update if the previous seconds == this seconds
+        let {seconds} = timerSettings
         yellowPhaseStart = Math.floor(seconds * .50)
         redPhaseStart = Math.floor(seconds * .25)
         setTimeLeft(seconds)
-    }, [seconds])
+    }, [timerSettings])
 
     useEffect(() => {
         if (!timeLeft) {
             setTimeUp(true)
-            return
+            return () => {}
         }
 
 

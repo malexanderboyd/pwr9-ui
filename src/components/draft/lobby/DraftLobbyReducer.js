@@ -2,7 +2,7 @@
     const GameModesEnum = Object.freeze({"regular": 1, "cube": 2, "chaos": 3})
 
 const initialState = {
-    totalPlayers: 1,
+    totalPlayers: null,
     gameTitle: "MTG Family Fun",
     privateGame: false,
     presetCubes: null,
